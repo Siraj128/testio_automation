@@ -1,0 +1,63 @@
+testio:
+  enabled: true
+  mode: "auto"                    # auto | manual | dry-run
+  login_url: "https://tester.test.io"
+  dashboard_url: "https://tester.test.io"
+  poll_interval_min: 20           # seconds (minimum between checks)
+  poll_interval_max: 60           # seconds (maximum between checks)
+  max_active_tests: 2             # respect tester level limit
+  schedule:                       # Advanced 24-hour schedule
+    enabled: true
+    periods:
+      - name: "Evening Strict"
+        start: "19:00"
+        end: "03:00"
+        mode: "strict"            # Strict polling, no breaks
+      - name: "Night Normal"
+        start: "03:00"
+        end: "08:00"
+        mode: "normal"            # Normal polling with random breaks
+      - name: "Day Strict"
+        start: "08:00"
+        end: "16:00"
+        mode: "strict"            # Strict polling, no breaks
+      - name: "Afternoon Light"
+        start: "16:00"
+        end: "18:00"
+        mode: "light"             # Light polling, slower intervals
+      - name: "Evening Break"
+        start: "18:00"
+        end: "19:00"
+        mode: "sleep"             # Bot sleeps completely
+  filter_keywords: []             # only accept tests matching these (empty = all)
+  exclude_keywords: []            # skip tests containing these words
+  headless: true                  # false for local debugging, true for Oracle
+
+stealth:
+  ua_rotation: true               # rotate user agents
+  webdriver_mask: true             # mask navigator.webdriver
+  webgl_spoof: true               # spoof WebGL renderer
+  viewport_width: 1920
+  viewport_height: 1080
+  timezone: "Asia/Kolkata"
+  locale: "en-US"
+  proxy:
+    enabled: false
+    url: ""                       # socks5://user:pass@host:port
+
+screenshots:
+  enabled: true
+  every_poll: false               # screenshot on every poll cycle (verbose)
+  retention_days: 7               # auto-cleanup after N days
+
+notifications:
+  enabled: true
+  on_accept: true
+  on_error: true
+  send_screenshot: true
+  heartbeat_minutes: 0            # 0 = disabled
+
+dashboard:
+  enabled: true
+  port: 8500
+  host: "0.0.0.0"

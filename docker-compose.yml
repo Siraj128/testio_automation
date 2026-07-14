@@ -1,0 +1,13 @@
+services:
+  testio-bot:
+    build: .
+    container_name: testio-bot
+    restart: unless-stopped
+    ports:
+      - "8500:8500"
+    volumes:
+      - ./data:/app/data          # Persist DB, cookies, screenshots, logs
+      - ./.env:/app/.env:ro       # Mount secrets read-only
+    environment:
+      - TZ=Asia/Kolkata           # Match your timezone
+    shm_size: '1gb'               # Chromium needs shared memory

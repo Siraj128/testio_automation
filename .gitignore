@@ -1,0 +1,27 @@
+# Environment
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Secrets
+.env
+
+# Runtime data
+data/browser_state/
+data/screenshots/
+data/api_cache.json
+data/stats.db
+data/bot.log
+
+# Node modules (fallback)
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/

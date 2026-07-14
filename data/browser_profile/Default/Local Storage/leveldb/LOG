@@ -1,0 +1,15 @@
+2026/07/12-13:45:17.782 762c Reusing MANIFEST C:\Users\Siraj\Desktop\testio_automation\data\browser_profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/07/12-13:45:17.785 762c Recovering log #23
+2026/07/12-13:45:17.787 762c Reusing old log C:\Users\Siraj\Desktop\testio_automation\data\browser_profile\Default\Local Storage\leveldb/000023.log 
+2026/07/12-13:52:18.321 6514 Level-0 table #27: started
+2026/07/12-13:52:18.330 6514 Level-0 table #27: 12847 bytes OK
+2026/07/12-13:52:18.332 6514 Delete type=0 #23
+2026/07/12-13:52:18.333 6514 Compacting 4@0 + 1@1 files
+2026/07/12-13:52:18.341 6514 Generated table #28@0: 11 keys, 1570 bytes
+2026/07/12-13:52:18.341 6514 Compacted 4@0 + 1@1 files => 1570 bytes
+2026/07/12-13:52:18.341 6514 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/07/12-13:52:18.343 6514 Delete type=2 #17
+2026/07/12-13:52:18.343 6514 Delete type=2 #19
+2026/07/12-13:52:18.343 6514 Delete type=2 #21
+2026/07/12-13:52:18.343 6514 Delete type=2 #24
+2026/07/12-13:52:18.343 6514 Delete type=2 #27
