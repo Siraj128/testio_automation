@@ -33,12 +33,21 @@ async def index(request: Request):
         }
     )
 
+from src.database.stats import get_today
+
 @app.get("/api/status")
 async def get_status(request: Request):
     """Get the current status of the bot."""
     bot = request.app.state.bot
     data = bot.status.to_dict()
     data["is_paused"] = bot._paused
+    
+    # Pull persistent stats from SQLite database to override in-memory counters
+    db_stats = await get_today()
+    data["poll_count"] = db_stats["refreshes"]
+    data["tests_accepted_today"] = db_stats["accepted"]
+    data["tests_failed"] = db_stats["failed"]
+    
     return data
 
 @app.post("/api/pause")
