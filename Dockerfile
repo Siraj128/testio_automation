@@ -8,9 +8,8 @@ COPY pyproject.toml ./
 # Install Python dependencies
 RUN pip install --no-cache-dir -e .
 
-# Install Playwright browsers (Chromium and branded Chrome)
+# Install Playwright browsers
 RUN playwright install chromium
-RUN playwright install chrome
 
 # Copy source code
 COPY src/ ./src/
