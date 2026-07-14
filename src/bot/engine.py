@@ -97,6 +97,7 @@ class TestIOBot:
             self._context = await self._playwright.chromium.launch_persistent_context(
                 user_data_dir=str(profile_dir),
                 headless=headless,
+                channel="chrome",  # Uses real Google Chrome instead of Chromium
                 args=[
                     "--disable-blink-features=AutomationControlled",
                     "--disable-dev-shm-usage",
