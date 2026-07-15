@@ -34,35 +34,47 @@ async def _listen_loop(config: dict, trigger_callback) -> None:
             logger.info("📧 Email listener active! Waiting for push notifications (IDLE)...")
             
             while not _stop_event.is_set():
-                # Simple search: just get ALL unseen emails (no complex OR/FROM filters)
-                status, messages = await client.search('UNSEEN')
+                # Simple search: get ALL unseen emails
+                response = await client.search('UNSEEN')
                 
-                if status == 'OK' and messages and messages[0]:
-                    msg_ids_raw = messages[0]
-                    if isinstance(msg_ids_raw, bytes):
-                        msg_ids_raw = msg_ids_raw.decode('utf-8')
-                    msg_ids = msg_ids_raw.strip().split()
+                if response.result == 'OK' and response.lines:
+                    # Extract message IDs from the response
+                    msg_ids = []
+                    for line in response.lines:
+                        if isinstance(line, bytes):
+                            line = line.decode('utf-8', errors='ignore')
+                        if isinstance(line, str):
+                            ids = line.strip().split()
+                            msg_ids.extend([mid for mid in ids if mid.isdigit()])
                     
                     for msg_id in msg_ids:
-                        if not msg_id:
-                            continue
                         try:
-                            status, msg_data = await client.fetch(msg_id, '(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)])')
-                            if status != 'OK':
+                            # Fetch the FROM and SUBJECT headers
+                            fetch_response = await client.fetch(
+                                msg_id, '(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)])'
+                            )
+                            
+                            if fetch_response.result != 'OK':
+                                logger.debug(f"Fetch failed for msg {msg_id}: {fetch_response.result}")
                                 continue
                             
+                            # Parse headers from response lines
                             from_addr = ""
                             subject = ""
                             
-                            for response_part in msg_data:
-                                if isinstance(response_part, tuple):
-                                    text = response_part[1].decode('utf-8', errors='ignore')
-                                    for line in text.splitlines():
-                                        line_lower = line.lower().strip()
-                                        if line_lower.startswith('from:'):
-                                            from_addr = line[5:].strip().lower()
-                                        elif line_lower.startswith('subject:'):
-                                            subject = line[8:].strip()
+                            raw_text = ""
+                            for line in fetch_response.lines:
+                                if isinstance(line, bytes):
+                                    raw_text += line.decode('utf-8', errors='ignore')
+                                elif isinstance(line, str):
+                                    raw_text += line
+                            
+                            for text_line in raw_text.splitlines():
+                                text_line_stripped = text_line.strip()
+                                if text_line_stripped.lower().startswith('from:'):
+                                    from_addr = text_line_stripped[5:].strip().lower()
+                                elif text_line_stripped.lower().startswith('subject:'):
+                                    subject = text_line_stripped[8:].strip()
                             
                             # Check if this email is from Test.io / Cirro
                             is_testio_email = any(
@@ -85,7 +97,6 @@ async def _listen_loop(config: dict, trigger_callback) -> None:
                                         from ..notifications.telegram import notify_status
                                         await notify_status(
                                             f"📧 *Email Alert!*\n"
-                                            f"From: {from_addr}\n"
                                             f"Subject: {subject}\n"
                                             f"⚡ Waking up instantly...", 
                                             config
@@ -96,12 +107,11 @@ async def _listen_loop(config: dict, trigger_callback) -> None:
                                 else:
                                     logger.debug(f"Non-invitation email from Test.io: {subject}")
                                 
-                                # Mark as read
+                                # Mark Test.io emails as read
                                 await client.store(msg_id, '+FLAGS', '\\Seen')
-                            # Don't mark non-testio emails as read (leave them alone)
-                            
+                                
                         except Exception as e:
-                            logger.error(f"Error processing email {msg_id}: {e}")
+                            logger.debug(f"Skipping email {msg_id}: {e}")
 
                 # Use IDLE to wait for server push or timeout after 5 mins
                 idle_task = asyncio.create_task(client.idle())
