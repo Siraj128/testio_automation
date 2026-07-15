@@ -122,6 +122,10 @@ def main():
             # Start telegram polling in the background
             await start_telegram_listener()
             
+            # Start heartbeat (every 6h) and daily summary (midnight) notifiers
+            from src.notifications.telegram import start_background_notifiers
+            start_background_notifiers(config)
+            
             try:
                 # Run main blocking loops concurrently
                 await asyncio.gather(

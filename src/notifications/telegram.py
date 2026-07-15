@@ -1,7 +1,9 @@
-"""Telegram notification sender — sends alerts + screenshots."""
+"""Telegram notification sender — sends alerts + screenshots + remote control."""
 import os
+import asyncio
 import logging
 from pathlib import Path
+from datetime import datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -124,6 +126,128 @@ async def notify_status(message: str, config: dict) -> None:
         return
     await send_message(message, config)
 
+
+async def notify_test_spotted(test_name: str, config: dict) -> None:
+    """Notify that a test was found on the page (before attempting to accept)."""
+    await send_message(f"🔍 *Test Spotted!*\n\n{test_name}\n\n⚡ Attempting to accept...", config)
+
+
+async def notify_crash_recovery(error: str, config: dict) -> None:
+    """Notify that the bot crashed and is auto-recovering."""
+    await send_message(
+        f"🔄 *Auto-Recovery*\n\n"
+        f"The bot hit an error and is recovering automatically.\n"
+        f"Error: `{error[:200]}`",
+        config
+    )
+
+
+async def notify_reauth_success(config: dict) -> None:
+    """Notify that session re-authentication succeeded."""
+    await send_message("✅ *Re-Auth Success*\nSession restored successfully.", config)
+
+
+async def notify_schedule_change(period_name: str, mode: str, config: dict) -> None:
+    """Notify when the schedule period changes."""
+    mode_emoji = {
+        "strict": "🔴",
+        "normal": "🟢",
+        "light": "🟡",
+        "sleep": "😴",
+    }
+    emoji = mode_emoji.get(mode, "🕐")
+    await send_message(f"{emoji} *Schedule: {period_name}*\nMode switched to `{mode}`", config)
+
+
+async def notify_email_reconnected(config: dict) -> None:
+    """Notify that the email IMAP listener reconnected."""
+    await send_message("📧 *Email Reconnected*\nIMAP listener is back online.", config)
+
+
+# ==========================================
+# HEARTBEAT & DAILY SUMMARY BACKGROUND TASKS
+# ==========================================
+
+_heartbeat_task: asyncio.Task | None = None
+_daily_task: asyncio.Task | None = None
+
+
+async def _heartbeat_loop(config: dict) -> None:
+    """Send a heartbeat notification every 6 hours."""
+    while True:
+        await asyncio.sleep(6 * 60 * 60)  # 6 hours
+        try:
+            from ..bot.engine import get_bot
+            from ..database.stats import get_today
+            bot = get_bot()
+            today = await get_today()
+
+            if bot:
+                uptime = bot.status.uptime_str
+                state = bot.status.state.value
+                text = (
+                    f"💓 *Heartbeat*\n\n"
+                    f"Status: `{state}`\n"
+                    f"Uptime: `{uptime}`\n"
+                    f"Today's Polls: `{today['refreshes']}`\n"
+                    f"Accepted: `{today['accepted']}`\n"
+                    f"Failed: `{today['failed']}`"
+                )
+            else:
+                text = "💓 *Heartbeat*\n\n⚠️ Bot engine not running!"
+            await send_message(text, config)
+        except Exception as e:
+            logger.error(f"Heartbeat failed: {e}")
+
+
+async def _daily_summary_loop(config: dict) -> None:
+    """Send a daily summary at midnight IST."""
+    while True:
+        # Calculate seconds until next midnight
+        now = datetime.now()
+        tomorrow_midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        if now >= tomorrow_midnight:
+            from datetime import timedelta
+            tomorrow_midnight += timedelta(days=1)
+        seconds_until = (tomorrow_midnight - now).total_seconds()
+        await asyncio.sleep(seconds_until)
+
+        try:
+            await _send_daily_summary(config)
+        except Exception as e:
+            logger.error(f"Daily summary failed: {e}")
+
+
+async def _send_daily_summary(config: dict) -> None:
+    """Build and send the daily summary."""
+    from ..database.stats import get_today
+    from ..bot.engine import get_bot
+    
+    today = await get_today()
+    bot = get_bot()
+    uptime = bot.status.uptime_str if bot else "N/A"
+    
+    text = (
+        f"📊 *Daily Summary — {datetime.now().strftime('%b %d, %Y')}*\n"
+        f"─────────────────────\n"
+        f"🔄 Polls: `{today['refreshes']}`\n"
+        f"✅ Accepted: `{today['accepted']}`\n"
+        f"❌ Failed: `{today['failed']}`\n"
+        f"⏱ Uptime: `{uptime}`\n"
+        f"─────────────────────\n"
+        f"_Goodnight! Bot continues running autonomously._"
+    )
+    await send_message(text, config)
+
+
+def start_background_notifiers(config: dict) -> None:
+    """Start heartbeat and daily summary background loops."""
+    global _heartbeat_task, _daily_task
+    _heartbeat_task = asyncio.create_task(_heartbeat_loop(config))
+    _daily_task = asyncio.create_task(_daily_summary_loop(config))
+    logger.info("📢 Background notifiers started (heartbeat + daily summary)")
+
+
 # ==========================================
 # REMOTE CONTROL LISTENER
 # ==========================================
@@ -153,6 +277,8 @@ async def start_telegram_listener() -> None:
         _app.add_handler(CommandHandler("screenshot", _cmd_screenshot))
         _app.add_handler(CommandHandler("stats", _cmd_stats))
         _app.add_handler(CommandHandler("speed", _cmd_speed))
+        _app.add_handler(CommandHandler("testemail", _cmd_testemail))
+        _app.add_handler(CommandHandler("daily", _cmd_daily))
         _app.add_handler(CallbackQueryHandler(_btn_speed, pattern="^speed_"))
         
         await _app.initialize()
@@ -163,9 +289,11 @@ async def start_telegram_listener() -> None:
             BotCommand("status", "Check current state and stats"),
             BotCommand("stats", "View 7-day weekly report"),
             BotCommand("speed", "Adjust polling speed"),
+            BotCommand("screenshot", "Take a live screenshot"),
+            BotCommand("testemail", "Verify email listener is alive"),
+            BotCommand("daily", "Force send daily summary now"),
             BotCommand("pause", "Pause the bot"),
             BotCommand("resume", "Resume the bot"),
-            BotCommand("screenshot", "Take a live screenshot"),
         ]
         await _app.bot.set_my_commands(commands)
         
@@ -208,10 +336,10 @@ async def _cmd_start(update, context) -> None:
         "Welcome! Use the buttons below to control the bot instantly."
     )
     
-    # Create persistent clickable buttons that type the commands for the user
     keyboard = [
         ["/status", "/stats"],
         ["/speed", "/screenshot"],
+        ["/testemail", "/daily"],
         ["/pause", "/resume"]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
@@ -227,12 +355,16 @@ async def _cmd_status(update, context) -> None:
         today = await get_today()
         
         if bot:
-            state = bot.status.state
+            state = bot.status.state.value
+            uptime = bot.status.uptime_str
             active = bot.status.active_test_count
+            last_poll = bot.status.last_poll_at.strftime("%H:%M:%S") if bot.status.last_poll_at else "Never"
             text = (
                 f"📊 *Live Bot Status*\n\n"
                 f"State: `{state}`\n"
-                f"Active Tests: `{active}`\n\n"
+                f"Uptime: `{uptime}`\n"
+                f"Active Tests: `{active}`\n"
+                f"Last Poll: `{last_poll}`\n\n"
                 f"📆 *Today's Stats*\n"
                 f"Refreshes: `{today['refreshes']}`\n"
                 f"Accepted: `{today['accepted']}`\n"
@@ -303,7 +435,6 @@ async def _btn_speed(update, context) -> None:
             await query.edit_message_text(text="🔄 Speed reset to your 24-hour Schedule Defaults")
             return
             
-        # Parse speed_MIN_MAX
         parts = query.data.split("_")
         min_sec = int(parts[1])
         max_sec = int(parts[2])
@@ -356,5 +487,132 @@ async def _cmd_screenshot(update, context) -> None:
                 await update.message.reply_photo(photo=photo, caption="Live view")
         else:
             await update.message.reply_text("❌ Failed to capture screenshot.")
+    except Exception as e:
+        await update.message.reply_text(f"Error: {e}")
+
+async def _cmd_testemail(update, context) -> None:
+    """Verify that the email IMAP listener is working."""
+    if not await _verify_user(update): return
+    
+    await update.message.reply_text("📧 Testing email connection...")
+    
+    try:
+        import aioimaplib
+        
+        host = os.getenv("EMAIL_IMAP_HOST", "imap.gmail.com")
+        port = int(os.getenv("EMAIL_IMAP_PORT", "993"))
+        user = os.getenv("EMAIL_ADDRESS", "")
+        password = os.getenv("EMAIL_PASSWORD", "")
+        
+        if not user or not password:
+            await update.message.reply_text("❌ Email credentials not configured in .env")
+            return
+        
+        # Connect and login
+        client = aioimaplib.IMAP4_SSL(host=host, port=port)
+        await client.wait_hello_from_server()
+        login_res = await client.login(user, password)
+        
+        if login_res.result != 'OK':
+            await update.message.reply_text("❌ IMAP login failed! Check EMAIL_PASSWORD in .env")
+            return
+        
+        await client.select('INBOX')
+        
+        # Search for recent Test.io/Cirro emails (last 50 emails)
+        response = await client.search('ALL')
+        
+        testio_emails = []
+        if response.result == 'OK' and response.lines:
+            msg_ids = []
+            for line in response.lines:
+                if isinstance(line, bytes):
+                    line = line.decode('utf-8', errors='ignore')
+                if isinstance(line, str):
+                    ids = line.strip().split()
+                    msg_ids.extend([mid for mid in ids if mid.isdigit()])
+            
+            # Check only the last 20 emails
+            recent_ids = msg_ids[-20:] if len(msg_ids) > 20 else msg_ids
+            
+            for msg_id in reversed(recent_ids):
+                try:
+                    fetch_response = await client.fetch(
+                        msg_id, '(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT DATE)])'
+                    )
+                    if fetch_response.result != 'OK':
+                        continue
+                    
+                    raw_text = ""
+                    for line in fetch_response.lines:
+                        if isinstance(line, bytes):
+                            raw_text += line.decode('utf-8', errors='ignore')
+                        elif isinstance(line, str):
+                            raw_text += line
+                    
+                    from_addr = ""
+                    subject = ""
+                    date = ""
+                    for text_line in raw_text.splitlines():
+                        tl = text_line.strip()
+                        if tl.lower().startswith('from:'):
+                            from_addr = tl[5:].strip()
+                        elif tl.lower().startswith('subject:'):
+                            subject = tl[8:].strip()
+                        elif tl.lower().startswith('date:'):
+                            date = tl[5:].strip()
+                    
+                    if any(s in from_addr.lower() for s in ["test.io", "cirro.io", "cirro", "testio"]):
+                        testio_emails.append({
+                            "from": from_addr,
+                            "subject": subject,
+                            "date": date
+                        })
+                        if len(testio_emails) >= 3:
+                            break
+                except Exception:
+                    continue
+        
+        await client.logout()
+        
+        # Build report
+        if testio_emails:
+            text = "✅ *Email Connection Working!*\n\n"
+            text += f"Connected to: `{host}`\n"
+            text += f"Account: `{user}`\n\n"
+            text += "*Recent Test.io Emails:*\n"
+            for i, email in enumerate(testio_emails, 1):
+                text += f"\n{i}. {email['subject']}\n"
+                text += f"   From: {email['from']}\n"
+                text += f"   Date: {email['date']}\n"
+        else:
+            text = (
+                "✅ *Email Connection Working!*\n\n"
+                f"Connected to: `{host}`\n"
+                f"Account: `{user}`\n\n"
+                "⚠️ No recent Test.io/Cirro emails found in the last 20 messages."
+            )
+        
+        # Also check if the background IMAP listener is alive
+        from ..email.listener import _email_task
+        if _email_task and not _email_task.done():
+            text += "\n\n🟢 Background IMAP IDLE listener: *Active*"
+        else:
+            text += "\n\n🔴 Background IMAP IDLE listener: *Dead* — will auto-restart"
+        
+        await update.message.reply_text(text, parse_mode="Markdown")
+        
+    except Exception as e:
+        await update.message.reply_text(f"❌ Email test failed:\n`{e}`", parse_mode="Markdown")
+
+async def _cmd_daily(update, context) -> None:
+    """Force-send the daily summary right now."""
+    if not await _verify_user(update): return
+    try:
+        from ..bot.engine import get_bot
+        bot = get_bot()
+        config = bot.config if bot else {}
+        await _send_daily_summary(config)
+        await update.message.reply_text("📊 Daily summary sent above!")
     except Exception as e:
         await update.message.reply_text(f"Error: {e}")

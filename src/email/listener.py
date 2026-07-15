@@ -19,11 +19,22 @@ async def _listen_loop(config: dict, trigger_callback) -> None:
         logger.warning("Email IMAP credentials missing — instant reload disabled.")
         return
 
+    _reconnect_count = 0
+    
     while not _stop_event.is_set():
         try:
             logger.info(f"Connecting to IMAP server {host}:{port}...")
             client = aioimaplib.IMAP4_SSL(host=host, port=port)
             await client.wait_hello_from_server()
+            
+            # Notify on reconnection (not first connection)
+            if _reconnect_count > 0:
+                try:
+                    from ..notifications.telegram import notify_email_reconnected
+                    await notify_email_reconnected(config)
+                except Exception:
+                    pass
+            _reconnect_count += 1
             
             login_res = await client.login(user, password)
             if login_res.result != 'OK':

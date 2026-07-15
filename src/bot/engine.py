@@ -187,6 +187,7 @@ class TestIOBot:
         logger.info(f"Mode: {mode}")
 
         max_active = self.testio_config.get("max_active_tests", 2)
+        _last_schedule_mode = None  # Track schedule transitions
 
         while self._running:
             # Check if paused
@@ -216,6 +217,15 @@ class TestIOBot:
                         schedule_mode = period.get("mode", "normal")
                         break
                         
+                # Notify on schedule mode transitions
+                if _last_schedule_mode is not None and schedule_mode != _last_schedule_mode:
+                    try:
+                        from ..notifications.telegram import notify_schedule_change
+                        await notify_schedule_change(schedule_mode.title(), schedule_mode, self.config)
+                    except Exception:
+                        pass
+                _last_schedule_mode = schedule_mode
+
                 if schedule_mode == "sleep":
                     if self.status.state != BotState.SLEEPING:
                         logger.info("Schedule mode is 'sleep'. Going to sleep...")
@@ -225,7 +235,7 @@ class TestIOBot:
                         except Exception:
                             pass
                     self.status.set_state(BotState.SLEEPING)
-                    await asyncio.sleep(60) # Check time every minute while sleeping
+                    await asyncio.sleep(60)
                     continue
                 else:
                     if self.status.state == BotState.SLEEPING:
@@ -254,6 +264,11 @@ class TestIOBot:
                         except Exception:
                             pass
                         await self._authenticate()
+                        try:
+                            from ..notifications.telegram import notify_reauth_success
+                            await notify_reauth_success(self.config)
+                        except Exception:
+                            pass
                         continue
 
                     self.status.set_state(BotState.IDLE)
@@ -283,6 +298,15 @@ class TestIOBot:
                         break
 
                     self.status.set_state(BotState.FOUND_TEST)
+
+                    # 🔍 Notify: Test Spotted!
+                    try:
+                        test_name_preview = (await invitation.text_content() or "Unknown").strip()[:100]
+                        from ..notifications.telegram import notify_test_spotted
+                        await notify_test_spotted(test_name_preview, self.config)
+                    except Exception:
+                        pass
+
                     self.status.set_state(BotState.ACCEPTING)
 
                     result = await accept_test(
@@ -348,6 +372,13 @@ class TestIOBot:
                 logger.error(f"Monitor loop error: {e}", exc_info=True)
                 self.status.set_state(BotState.ERROR, str(e))
 
+                # 🔄 Notify: Crash Recovery
+                try:
+                    from ..notifications.telegram import notify_crash_recovery
+                    await notify_crash_recovery(str(e), self.config)
+                except Exception:
+                    pass
+
                 # Try to recover
                 try:
                     await capture(self._page, "error_recovery")
@@ -360,6 +391,11 @@ class TestIOBot:
                 # Try re-authenticating
                 try:
                     await self._authenticate()
+                    try:
+                        from ..notifications.telegram import notify_reauth_success
+                        await notify_reauth_success(self.config)
+                    except Exception:
+                        pass
                 except Exception as auth_err:
                     logger.error(f"Re-auth failed: {auth_err}")
                     await asyncio.sleep(60)
