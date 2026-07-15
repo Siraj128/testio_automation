@@ -104,25 +104,25 @@ async def _listen_loop(config: dict, trigger_callback) -> None:
                             )
                             
                             if is_invitation:
-                                    logger.info(f"🚨 New Test IO invitation email detected!")
-                                    logger.info(f"   From: {from_addr}")
-                                    logger.info(f"   Subject: {subject}")
-                                    try:
-                                        from ..notifications.telegram import notify_status
-                                        await notify_status(
-                                            f"📧 *Email Alert!*\n"
-                                            f"Subject: {subject}\n"
-                                            f"⚡ Waking up instantly...", 
-                                            config
-                                        )
-                                    except Exception as e:
-                                        logger.error(f"Failed to send email notification: {e}")
-                                    trigger_callback()
-                                else:
-                                    logger.debug(f"Non-invitation email from Test.io: {subject}")
-                                
-                                # Mark Test.io emails as read
-                                await client.store(msg_id, '+FLAGS', '\\Seen')
+                                logger.info(f"🚨 New Test IO invitation email detected!")
+                                logger.info(f"   From: {from_addr}")
+                                logger.info(f"   Subject: {subject}")
+                                try:
+                                    from ..notifications.telegram import notify_status
+                                    await notify_status(
+                                        f"📧 *Email Alert!*\n"
+                                        f"Subject: {subject}\n"
+                                        f"⚡ Waking up instantly...", 
+                                        config
+                                    )
+                                except Exception as e:
+                                    logger.error(f"Failed to send email notification: {e}")
+                                trigger_callback()
+                            else:
+                                logger.debug(f"Non-invitation email from Test.io: {subject}")
+                            
+                            # Mark Test.io emails as read
+                            await client.store(msg_id, '+FLAGS', '\\Seen')
                                 
                         except Exception as e:
                             logger.debug(f"Skipping email {msg_id}: {e}")
