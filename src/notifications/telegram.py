@@ -602,6 +602,23 @@ async def _cmd_testemail(update, context) -> None:
             text += "\n\n🟢 Background IMAP IDLE listener: *Active*"
         else:
             text += "\n\n🔴 Background IMAP IDLE listener: *Dead* — will auto-restart"
+            
+        # Trigger an instant reload of the bot to simulate real-time behavior
+        try:
+            from ..bot.engine import _bot_instance
+            if _bot_instance:
+                _bot_instance.trigger_instant_reload()
+                text += "\n🚀 *Simulating Instant Bot Wakeup...*"
+                
+                # Also notify via the standard bot notification channel for realism
+                from .telegram import notify_status
+                await notify_status(
+                    "📧 *Manual Email Test Triggered!*\n"
+                    "⚡ Waking up bot instantly...", 
+                    _bot_instance.config
+                )
+        except Exception as e:
+            text += f"\n⚠️ Failed to trigger bot reload: {e}"
         
         await update.message.reply_text(text, parse_mode="Markdown")
         
