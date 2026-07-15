@@ -45,20 +45,28 @@ async def _listen_loop(config: dict, trigger_callback) -> None:
             logger.info("📧 Email listener active! Waiting for push notifications (IDLE)...")
             
             while not _stop_event.is_set():
-                # Simple search: get ALL unseen emails
-                response = await client.search('UNSEEN')
+                # Server-side search for unseen emails from our target senders
+                msg_ids = set()
                 
-                if response.result == 'OK' and response.lines:
-                    # Extract message IDs from the response
-                    msg_ids = []
-                    for line in response.lines:
-                        if isinstance(line, bytes):
-                            line = line.decode('utf-8', errors='ignore')
-                        if isinstance(line, str):
-                            ids = line.strip().split()
-                            msg_ids.extend([mid for mid in ids if mid.isdigit()])
+                # Search 1: Cirro
+                res_cirro = await client.search('UNSEEN FROM "cirro"')
+                if res_cirro.result == 'OK' and res_cirro.lines:
+                    for line in res_cirro.lines:
+                        if isinstance(line, bytes): line = line.decode('utf-8', errors='ignore')
+                        msg_ids.update([mid for mid in line.strip().split() if mid.isdigit()])
+                        
+                # Search 2: Test.io
+                res_testio = await client.search('UNSEEN FROM "test.io"')
+                if res_testio.result == 'OK' and res_testio.lines:
+                    for line in res_testio.lines:
+                        if isinstance(line, bytes): line = line.decode('utf-8', errors='ignore')
+                        msg_ids.update([mid for mid in line.strip().split() if mid.isdigit()])
+                
+                if msg_ids:
+                    # Sort numerically to process oldest first
+                    sorted_ids = sorted(list(msg_ids), key=lambda x: int(x))
                     
-                    for msg_id in msg_ids:
+                    for msg_id in sorted_ids:
                         try:
                             # Fetch the FROM and SUBJECT headers
                             fetch_response = await client.fetch(
@@ -87,20 +95,15 @@ async def _listen_loop(config: dict, trigger_callback) -> None:
                                 elif text_line_stripped.lower().startswith('subject:'):
                                     subject = text_line_stripped[8:].strip()
                             
-                            # Check if this email is from Test.io / Cirro
-                            is_testio_email = any(
-                                sender in from_addr 
-                                for sender in ["test.io", "cirro.io", "cirro", "testio"]
+                            # Since we filtered on the server, we know it's a target email
+                            # Just check if it's an invitation based on subject
+                            subject_lower = subject.lower()
+                            is_invitation = any(
+                                k in subject_lower 
+                                for k in ["invitation", "invited", "new test", "test cycle", "available"]
                             )
                             
-                            if is_testio_email:
-                                subject_lower = subject.lower()
-                                is_invitation = any(
-                                    k in subject_lower 
-                                    for k in ["invitation", "invited", "new test", "test cycle", "available"]
-                                )
-                                
-                                if is_invitation:
+                            if is_invitation:
                                     logger.info(f"🚨 New Test IO invitation email detected!")
                                     logger.info(f"   From: {from_addr}")
                                     logger.info(f"   Subject: {subject}")

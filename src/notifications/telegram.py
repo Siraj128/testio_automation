@@ -519,21 +519,30 @@ async def _cmd_testemail(update, context) -> None:
         
         await client.select('INBOX')
         
-        # Search for recent Test.io/Cirro emails (last 50 emails)
-        response = await client.search('ALL')
+        # Search for recent Test.io/Cirro emails
+        msg_ids = set()
+        
+        # Search 1: Cirro
+        res_cirro = await client.search('FROM "cirro"')
+        if res_cirro.result == 'OK' and res_cirro.lines:
+            for line in res_cirro.lines:
+                if isinstance(line, bytes): line = line.decode('utf-8', errors='ignore')
+                msg_ids.update([mid for mid in line.strip().split() if mid.isdigit()])
+                
+        # Search 2: Test.io
+        res_testio = await client.search('FROM "test.io"')
+        if res_testio.result == 'OK' and res_testio.lines:
+            for line in res_testio.lines:
+                if isinstance(line, bytes): line = line.decode('utf-8', errors='ignore')
+                msg_ids.update([mid for mid in line.strip().split() if mid.isdigit()])
         
         testio_emails = []
-        if response.result == 'OK' and response.lines:
-            msg_ids = []
-            for line in response.lines:
-                if isinstance(line, bytes):
-                    line = line.decode('utf-8', errors='ignore')
-                if isinstance(line, str):
-                    ids = line.strip().split()
-                    msg_ids.extend([mid for mid in ids if mid.isdigit()])
+        if msg_ids:
+            # Sort numerically
+            sorted_ids = sorted(list(msg_ids), key=lambda x: int(x))
             
-            # Check only the last 20 emails
-            recent_ids = msg_ids[-20:] if len(msg_ids) > 20 else msg_ids
+            # Check the last 10 matching emails
+            recent_ids = sorted_ids[-10:] if len(sorted_ids) > 10 else sorted_ids
             
             for msg_id in reversed(recent_ids):
                 try:
@@ -562,14 +571,11 @@ async def _cmd_testemail(update, context) -> None:
                         elif tl.lower().startswith('date:'):
                             date = tl[5:].strip()
                     
-                    if any(s in from_addr.lower() for s in ["test.io", "cirro.io", "cirro", "testio"]):
-                        testio_emails.append({
-                            "from": from_addr,
-                            "subject": subject,
-                            "date": date
-                        })
-                        if len(testio_emails) >= 3:
-                            break
+                    testio_emails.append({
+                        "from": from_addr,
+                        "subject": subject,
+                        "date": date
+                    })
                 except Exception:
                     continue
         
