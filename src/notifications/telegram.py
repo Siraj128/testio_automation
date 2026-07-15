@@ -555,21 +555,18 @@ async def _cmd_testemail(update, context) -> None:
                     raw_text = ""
                     for line in fetch_response.lines:
                         if isinstance(line, bytes):
-                            raw_text += line.decode('utf-8', errors='ignore')
+                            raw_text += line.decode('utf-8', errors='ignore') + "\n"
                         elif isinstance(line, str):
-                            raw_text += line
+                            raw_text += line + "\n"
                     
-                    from_addr = ""
-                    subject = ""
-                    date = ""
-                    for text_line in raw_text.splitlines():
-                        tl = text_line.strip()
-                        if tl.lower().startswith('from:'):
-                            from_addr = tl[5:].strip()
-                        elif tl.lower().startswith('subject:'):
-                            subject = tl[8:].strip()
-                        elif tl.lower().startswith('date:'):
-                            date = tl[5:].strip()
+                    import re
+                    from_match = re.search(r'(?im)^From:\s*(.*)', raw_text)
+                    subj_match = re.search(r'(?im)^Subject:\s*(.*)', raw_text)
+                    date_match = re.search(r'(?im)^Date:\s*(.*)', raw_text)
+                    
+                    from_addr = from_match.group(1).strip() if from_match else ""
+                    subject = subj_match.group(1).strip() if subj_match else ""
+                    date = date_match.group(1).strip() if date_match else ""
                     
                     testio_emails.append({
                         "from": from_addr,
