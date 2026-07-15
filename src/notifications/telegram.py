@@ -560,9 +560,9 @@ async def _cmd_testemail(update, context) -> None:
                             raw_text += line + "\n"
                     
                     import re
-                    from_match = re.search(r'(?im)^From:\s*(.*)', raw_text)
-                    subj_match = re.search(r'(?im)^Subject:\s*(.*)', raw_text)
-                    date_match = re.search(r'(?im)^Date:\s*(.*)', raw_text)
+                    from_match = re.search(r'(?i)From:\s*([^\r\n]+)', raw_text)
+                    subj_match = re.search(r'(?i)Subject:\s*([^\r\n]+)', raw_text)
+                    date_match = re.search(r'(?i)Date:\s*([^\r\n]+)', raw_text)
                     
                     from_addr = from_match.group(1).strip() if from_match else ""
                     subject = subj_match.group(1).strip() if subj_match else ""
