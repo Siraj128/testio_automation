@@ -1,8 +1,10 @@
 import asyncio
 import os
 import aioimaplib
+from dotenv import load_dotenv
 
 async def main():
+    load_dotenv()
     host = os.getenv("EMAIL_IMAP_HOST", "imap.gmail.com")
     port = int(os.getenv("EMAIL_IMAP_PORT", "993"))
     user = os.getenv("EMAIL_ADDRESS", "")

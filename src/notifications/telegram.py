@@ -554,7 +554,7 @@ async def _cmd_testemail(update, context) -> None:
                     
                     raw_text = ""
                     for line in fetch_response.lines:
-                        if isinstance(line, bytes):
+                        if isinstance(line, (bytes, bytearray)):
                             raw_text += line.decode('utf-8', errors='ignore') + "\n"
                         elif isinstance(line, str):
                             raw_text += line + "\n"
