@@ -17,6 +17,7 @@ async def check_for_invitations(page: Page, dashboard_url: str, config: dict) ->
 
     try:
         # Navigate to the Available Tasks page
+        logger.info("🔍 Checking for invitations on dashboard...")
         await page.goto(dashboard_url, wait_until="domcontentloaded", timeout=30000)
         
         try:
@@ -48,7 +49,7 @@ async def check_for_invitations(page: Page, dashboard_url: str, config: dict) ->
         page_text_lower = page_text.lower()
         for phrase in no_jobs_phrases:
             if phrase in page_text_lower:
-                logger.debug(f"No tests available: '{phrase}' found on page")
+                logger.info(f"❌ No tests available: '{phrase}' found on page")
                 return []
 
         # ---- Look for test invitation elements on the Available Tasks page ----

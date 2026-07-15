@@ -564,8 +564,24 @@ async def _cmd_testemail(update, context) -> None:
                     subj_match = re.search(r'(?i)Subject:\s*([^\r\n]+)', raw_text)
                     date_match = re.search(r'(?i)Date:\s*([^\r\n]+)', raw_text)
                     
-                    from_addr = from_match.group(1).strip() if from_match else ""
-                    subject = subj_match.group(1).strip() if subj_match else ""
+                    from email.header import decode_header
+                    
+                    def _dec(text):
+                        if not text: return ""
+                        try:
+                            parts = decode_header(text)
+                            res = ""
+                            for p, enc in parts:
+                                if isinstance(p, bytes):
+                                    res += p.decode(enc or 'utf-8', errors='ignore')
+                                else:
+                                    res += p
+                            return res
+                        except Exception:
+                            return text
+
+                    from_addr = _dec(from_match.group(1).strip()) if from_match else ""
+                    subject = _dec(subj_match.group(1).strip()) if subj_match else ""
                     date = date_match.group(1).strip() if date_match else ""
                     
                     debug_raw = raw_text if not from_addr else ""

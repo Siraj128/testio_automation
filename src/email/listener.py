@@ -92,8 +92,23 @@ async def _listen_loop(config: dict, trigger_callback) -> None:
                             from_match = re.search(r'(?i)From:\s*([^\r\n]+)', raw_text)
                             subj_match = re.search(r'(?i)Subject:\s*([^\r\n]+)', raw_text)
                             
-                            from_addr = from_match.group(1).strip() if from_match else ""
-                            subject = subj_match.group(1).strip() if subj_match else ""
+                            from email.header import decode_header
+                            def _dec(text):
+                                if not text: return ""
+                                try:
+                                    parts = decode_header(text)
+                                    res = ""
+                                    for p, enc in parts:
+                                        if isinstance(p, bytes):
+                                            res += p.decode(enc or 'utf-8', errors='ignore')
+                                        else:
+                                            res += p
+                                    return res
+                                except Exception:
+                                    return text
+                                    
+                            from_addr = _dec(from_match.group(1).strip()) if from_match else ""
+                            subject = _dec(subj_match.group(1).strip()) if subj_match else ""
                             
                             # Since we filtered on the server, we know it's a target email
                             # Just check if it's an invitation based on subject
