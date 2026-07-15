@@ -9,55 +9,74 @@ logger = logging.getLogger(__name__)
 
 
 async def check_for_invitations(page: Page, dashboard_url: str, config: dict) -> list:
-    """Navigate to the dashboard and look for test invitations.
+    """Navigate to the Available Tasks page and look for test invitations.
 
     Returns a list of test element locators that can be passed to acceptor.
     """
     testio_config = config.get("testio", {})
 
     try:
-        # Navigate to dashboard
+        # Navigate to the Available Tasks page
         await page.goto(dashboard_url, wait_until="domcontentloaded", timeout=30000)
         
         try:
-            # Modern web apps sometimes never reach networkidle due to tracking/websockets
             await page.wait_for_load_state("networkidle", timeout=5000)
         except Exception:
-            pass  # It's fine if this times out, DOM is already loaded
+            pass
 
         current_url = page.url.lower()
 
         # Check if we got redirected to login (session expired)
-        login_indicators = ["login", "sign_in", "signin", "cirro.io", "auth"]
+        login_indicators = ["login", "sign_in", "signin", "cirro.io/users/sign_in", "auth"]
         if any(ind in current_url for ind in login_indicators):
             logger.warning("Session expired during poll — need re-authentication")
-            return []  # Engine will handle re-auth
+            return []
 
-        # Screenshot if configured to screenshot every poll
+        # Screenshot if configured
         if config.get("screenshots", {}).get("every_poll", False):
             await capture(page, "poll")
 
-        # Check if there are explicitly NO tests
-        try:
-            no_tests = await page.query_selector('text="No test invitations"')
-            if no_tests and await no_tests.is_visible():
-                logger.debug("Explicit 'No test invitations' message found.")
+        # Check for the explicit "no available jobs" message on the Available Tasks page
+        page_text = await page.text_content("body") or ""
+        no_jobs_phrases = [
+            "you don't have any available jobs",
+            "no available jobs",
+            "no test invitations",
+            "no available tasks",
+            "no tests available",
+        ]
+        page_text_lower = page_text.lower()
+        for phrase in no_jobs_phrases:
+            if phrase in page_text_lower:
+                logger.debug(f"No tests available: '{phrase}' found on page")
                 return []
-        except Exception:
-            pass
 
-        # Look for test invitation elements on the dashboard
+        # ---- Look for test invitation elements on the Available Tasks page ----
+        # These selectors cover common patterns for test cards/rows on Test.io
         invitation_selectors = [
-            # Primary selectors for test cycle cards
+            # Links or cards that contain test cycle info
+            'a[href*="test_cycle"]',
+            'a[href*="available_tasks"]',
             '[data-testid*="test-cycle"]',
+            '[data-testid*="task"]',
             '.test-cycle-card',
-            # Invitation-specific selectors
+            # Table rows or list items in the available tasks area
+            'table tbody tr',
+            '.task-list-item',
+            '.available-task',
+            # Generic card/row selectors within the main content area
+            'main .card',
+            '.content .card',
+            '#content .card',
+            # Any clickable element that looks like a test listing
             '[class*="invitation"]',
-            '[data-testid*="invitation"]',
-            '.invitation-card',
-            # Generic card selectors in the invitation area (strict sibling)
-            'div:has-text("Available Test Cycles") + div .card',
-            '.available-tests .card',
+            '[class*="task-card"]',
+            '[class*="test-card"]',
+            '[class*="cycle"]',
+            # Seat-related elements
+            '[class*="seat"]',
+            # Broad fallback: any <a> tag in the main area that isn't navigation
+            'main a:not([href="/"])',
         ]
 
         found_tests = []
@@ -66,14 +85,16 @@ async def check_for_invitations(page: Page, dashboard_url: str, config: dict) ->
             try:
                 elements = await page.query_selector_all(selector)
                 if elements:
-                    logger.info(f"Found {len(elements)} potential test(s) with: {selector}")
                     for el in elements:
-                        # Check if element is visible
                         is_visible = await el.is_visible()
                         if is_visible:
-                            found_tests.append(el)
+                            # Check element has meaningful text (not just whitespace/navigation)
+                            text = (await el.text_content() or "").strip()
+                            if len(text) > 10:  # Real test entries have substantial text
+                                found_tests.append(el)
                     if found_tests:
-                        break  # Use the first selector that finds results
+                        logger.info(f"Found {len(found_tests)} potential test(s) with selector: {selector}")
+                        break
             except Exception:
                 continue
 
@@ -87,13 +108,11 @@ async def check_for_invitations(page: Page, dashboard_url: str, config: dict) ->
                 try:
                     text = (await test.text_content() or "").lower()
 
-                    # Apply include filter (must match at least one keyword)
                     if filter_keywords:
                         if not any(kw.lower() in text for kw in filter_keywords):
                             logger.debug(f"Skipped (no keyword match): {text[:50]}")
                             continue
 
-                    # Apply exclude filter (must not match any keyword)
                     if exclude_keywords:
                         if any(kw.lower() in text for kw in exclude_keywords):
                             logger.debug(f"Skipped (excluded keyword): {text[:50]}")
@@ -101,14 +120,15 @@ async def check_for_invitations(page: Page, dashboard_url: str, config: dict) ->
 
                     filtered.append(test)
                 except Exception:
-                    filtered.append(test)  # Include if we can't read text
+                    filtered.append(test)
 
             found_tests = filtered
 
         if found_tests:
             logger.info(f"🎯 {len(found_tests)} test invitation(s) available!")
+            await capture(page, "tests_found")
         else:
-            logger.debug("No test invitations found")
+            logger.debug("No test invitations found on Available Tasks page")
 
         return found_tests
 
