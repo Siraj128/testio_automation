@@ -568,12 +568,21 @@ async def _cmd_testemail(update, context) -> None:
                     subject = subj_match.group(1).strip() if subj_match else ""
                     date = date_match.group(1).strip() if date_match else ""
                     
+                    debug_raw = raw_text if not from_addr else ""
+                    
                     testio_emails.append({
                         "from": from_addr,
                         "subject": subject,
-                        "date": date
+                        "date": date,
+                        "debug": debug_raw
                     })
-                except Exception:
+                except Exception as e:
+                    testio_emails.append({
+                        "from": "ERROR",
+                        "subject": str(e),
+                        "date": "",
+                        "debug": ""
+                    })
                     continue
         
         await client.logout()
@@ -585,9 +594,13 @@ async def _cmd_testemail(update, context) -> None:
             text += f"Account: `{user}`\n\n"
             text += "*Recent Test.io Emails:*\n"
             for i, email in enumerate(testio_emails, 1):
-                text += f"\n{i}. {email['subject']}\n"
-                text += f"   From: {email['from']}\n"
-                text += f"   Date: {email['date']}\n"
+                if email.get('debug'):
+                    text += f"\n{i}. [DEBUG EMPTY] {email['subject']}\n"
+                    text += f"   RAW: `{email['debug'][:200]}...`\n"
+                else:
+                    text += f"\n{i}. {email['subject']}\n"
+                    text += f"   From: {email['from']}\n"
+                    text += f"   Date: {email['date']}\n"
         else:
             text = (
                 "✅ *Email Connection Working!*\n\n"
