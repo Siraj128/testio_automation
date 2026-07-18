@@ -216,22 +216,23 @@ async def _listen_loop(config: dict, trigger_callback) -> None:
 
                 # Enter IMAP IDLE — wait for server push or timeout
                 try:
-                    idle_task = await client.idle_start(timeout=300)
+                    await client.idle_start(timeout=290)
                     
-                    # Wait for either: IDLE response, stop event, or hard timeout
+                    # Wait for either: a server push (like EXISTS), stop event, or hard timeout
+                    push_task = asyncio.create_task(client.wait_server_push())
                     stop_task = asyncio.create_task(_stop_event.wait())
                     
                     done, pending = await asyncio.wait(
-                        [idle_task, stop_task],
+                        [push_task, stop_task],
                         return_when=asyncio.FIRST_COMPLETED
                     )
                     
                     # Always cleanly end IDLE before doing anything else
                     client.idle_done()
                     
-                    # Wait for IDLE to fully complete
+                    # Wait for the push task to finish if it hasn't already
                     try:
-                        await asyncio.wait_for(idle_task, timeout=10)
+                        await asyncio.wait_for(push_task, timeout=5)
                     except (asyncio.TimeoutError, Exception):
                         pass
                     

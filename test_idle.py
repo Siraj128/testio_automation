@@ -18,14 +18,16 @@ async def main():
     await client.select('INBOX')
 
     print("starting idle...")
-    idle_task = await client.idle_start(timeout=300)
+    await client.idle_start(timeout=30)
     
-    print("Waiting for idle_task to finish (mark an email unread now!)...")
-    done, pending = await asyncio.wait([idle_task])
-    print("idle_task finished!")
+    push_task = asyncio.create_task(client.wait_server_push())
+    
+    print("Waiting for server push (mark an email unread now!)...")
+    done, pending = await asyncio.wait([push_task])
+    print("push_task finished!")
     
     client.idle_done()
-    res = await idle_task
+    res = await push_task
     print("res:", res)
 
 asyncio.run(main())
