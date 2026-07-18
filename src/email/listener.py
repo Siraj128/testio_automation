@@ -69,13 +69,18 @@ async def _parse_email_headers(fetch_response) -> tuple[str, str]:
 
         from_match = re.search(r'(?i)From:\s*([^\r\n]+)', raw_text)
         subj_match = re.search(r'(?i)Subject:\s*([^\r\n]+)', raw_text)
+        mid_match = re.search(r'(?i)Message-ID:\s*([^\r\n]+)', raw_text)
+        date_match = re.search(r'(?i)Date:\s*([^\r\n]+)', raw_text)
 
         from_addr = _dec(from_match.group(1).strip()) if from_match else ""
         subject = _dec(subj_match.group(1).strip()) if subj_match else ""
-        return from_addr, subject
+        msg_id_hdr = _dec(mid_match.group(1).strip()) if mid_match else ""
+        date_hdr = _dec(date_match.group(1).strip()) if date_match else ""
+        
+        return from_addr, subject, msg_id_hdr, date_hdr
     except Exception as e:
         logger.warning(f"Failed to parse email headers: {e}")
-        return "", ""
+        return "", "", "", ""
 
 
 def _is_invitation(subject: str) -> bool:
@@ -105,6 +110,9 @@ async def _do_imap_search(client, search_query: str) -> set[str]:
 
 async def _process_new_emails(client, config: dict, trigger_callback) -> int:
     """Check for unseen Cirro/Test.io emails, process them, return count found."""
+    import hashlib
+    from ..database import stats
+    
     # Server-side search for unseen emails from target senders
     msg_ids = set()
     msg_ids |= await _do_imap_search(client, 'UNSEEN FROM "cirro"')
@@ -119,16 +127,30 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
     for msg_id in sorted(msg_ids, key=lambda x: int(x)):
         try:
             fetch_response = await client.fetch(
-                msg_id, '(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)])'
+                msg_id, '(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID DATE)])'
             )
             if fetch_response.result != 'OK':
                 logger.warning(f"Fetch failed for msg {msg_id}: {fetch_response.result}")
                 continue
 
-            from_addr, subject = await _parse_email_headers(fetch_response)
+            from_addr, subject, msg_id_hdr, date_hdr = await _parse_email_headers(fetch_response)
+            
+            # Generate a unique fingerprint for this email
+            if msg_id_hdr:
+                fingerprint = msg_id_hdr
+            else:
+                # Fallback if Message-ID is missing (some automated or spoofed emails)
+                raw_fp = f"{from_addr}|{subject}|{date_hdr}"
+                fingerprint = "hash:" + hashlib.md5(raw_fp.encode('utf-8')).hexdigest()
+                
             logger.info(f"  📩 Email #{msg_id}: From={from_addr}, Subject={subject}")
 
             if _is_invitation(subject):
+                # Check if we've already processed this exact email
+                if await stats.is_email_processed(fingerprint):
+                    logger.info(f"  ℹ️ Email {fingerprint} already processed. Skipping to avoid reload loop.")
+                    continue
+                    
                 invitations_found += 1
                 logger.info(f"🚨 NEW TEST INVITATION DETECTED!")
                 logger.info(f"   From: {from_addr}")
@@ -141,15 +163,16 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
                     f"Subject: {subject}\n"
                     f"⚡ Waking up bot instantly..."
                 )
+                
+                # Mark it as processed in our local database BEFORE triggering callback
+                await stats.mark_email_processed(fingerprint)
                 trigger_callback()
             else:
                 logger.info(f"  ℹ️ Non-invitation email, skipping trigger")
 
-            # Mark as read so we don't process it again
-            try:
-                await client.store(msg_id, '+FLAGS', '\\Seen')
-            except Exception as e:
-                logger.warning(f"Failed to mark msg {msg_id} as read: {e}")
+            # We intentionally DO NOT mark the email as \Seen here anymore.
+            # This allows the email to remain unread in the user's inbox, 
+            # while the local database prevents the bot from infinitely reloading.
 
         except Exception as e:
             logger.warning(f"Error processing email {msg_id}: {e}")

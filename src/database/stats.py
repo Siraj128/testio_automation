@@ -29,9 +29,41 @@ async def init_db() -> None:
                 )
                 """
             )
+            await db.execute(
+                """
+                CREATE TABLE IF NOT EXISTS processed_emails (
+                    message_id TEXT PRIMARY KEY,
+                    processed_at TEXT
+                )
+                """
+            )
             await db.commit()
     except Exception as e:
         logger.error(f"Failed to initialize stats DB: {e}")
+
+async def is_email_processed(message_id: str) -> bool:
+    """Check if an email has already been processed."""
+    db_path = get_db_path()
+    try:
+        async with aiosqlite.connect(db_path) as db:
+            async with db.execute("SELECT 1 FROM processed_emails WHERE message_id = ?", (message_id,)) as cursor:
+                return await cursor.fetchone() is not None
+    except Exception as e:
+        logger.error(f"Failed to check processed email DB: {e}")
+        return False
+
+async def mark_email_processed(message_id: str) -> None:
+    """Mark an email as processed."""
+    db_path = get_db_path()
+    try:
+        async with aiosqlite.connect(db_path) as db:
+            await db.execute(
+                "INSERT OR IGNORE INTO processed_emails (message_id, processed_at) VALUES (?, ?)",
+                (message_id, datetime.now().isoformat())
+            )
+            await db.commit()
+    except Exception as e:
+        logger.error(f"Failed to mark email processed in DB: {e}")
 
 
 async def _ensure_today(db: aiosqlite.Connection, date_str: str) -> None:
