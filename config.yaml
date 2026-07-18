@@ -28,7 +28,7 @@ testio:
       - name: "Evening Break"
         start: "18:00"
         end: "19:00"
-        mode: "sleep"             # Bot sleeps completely
+        mode: "light"             # Bot polls lightly instead of sleeping completely
   filter_keywords: []             # only accept tests matching these (empty = all)
   exclude_keywords: []            # skip tests containing these words
   headless: true                  # false for local debugging, true for Oracle

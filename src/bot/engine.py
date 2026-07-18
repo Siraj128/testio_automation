@@ -201,7 +201,14 @@ class TestIOBot:
             schedule_mode = "normal"
             
             if schedule_config.get("enabled", False):
-                now = datetime.now().strftime("%H:%M")
+                import zoneinfo
+                tz_str = self.config.get("stealth", {}).get("timezone", "UTC")
+                try:
+                    tz = zoneinfo.ZoneInfo(tz_str)
+                except Exception:
+                    tz = None
+                    
+                now = datetime.now(tz).strftime("%H:%M")
                 periods = schedule_config.get("periods", [])
                 for period in periods:
                     start_time = period.get("start", "00:00")
