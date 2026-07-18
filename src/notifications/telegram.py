@@ -625,26 +625,33 @@ async def _cmd_testemail(update, context) -> None:
                 "⚠️ No recent Test.io/Cirro emails found in the last 20 messages."
             )
         
-        # Also check if the background IMAP listener is alive
-        from ..email.listener import _email_task
-        if _email_task and not _email_task.done():
-            text += "\n\n🟢 Background IMAP IDLE listener: *Active*"
+        # Check background IMAP listener health
+        from ..email.listener import _email_task, _listener_alive, _last_heartbeat, _consecutive_failures
+        if _email_task and not _email_task.done() and _listener_alive:
+            staleness = ""
+            if _last_heartbeat:
+                secs = (datetime.now() - _last_heartbeat).total_seconds()
+                staleness = f" (last heartbeat {int(secs)}s ago)"
+            text += f"\n\n🟢 Background IMAP IDLE listener: *Active*{staleness}"
+        elif _email_task and not _email_task.done():
+            text += "\n\n🟡 Background IMAP IDLE listener: *Connecting...*"
         else:
-            text += "\n\n🔴 Background IMAP IDLE listener: *Dead* — will auto-restart"
+            text += "\n\n🔴 Background IMAP IDLE listener: *Dead* — watchdog will restart"
+        
+        if _consecutive_failures > 0:
+            text += f"\n⚠️ Consecutive failures: {_consecutive_failures}"
             
-        # Trigger an instant reload of the bot to simulate real-time behavior
+        # Trigger an instant reload of the bot
         try:
-            from ..bot.engine import _bot_instance
-            if _bot_instance:
-                _bot_instance.trigger_instant_reload()
+            from ..bot.engine import get_bot
+            bot = get_bot()
+            if bot:
+                bot.trigger_instant_reload()
                 text += "\n🚀 *Simulating Instant Bot Wakeup...*"
-                
-                # Also notify via the standard bot notification channel for realism
-                from .telegram import notify_status
                 await notify_status(
                     "📧 *Manual Email Test Triggered!*\n"
                     "⚡ Waking up bot instantly...", 
-                    _bot_instance.config
+                    bot.config
                 )
         except Exception as e:
             text += f"\n⚠️ Failed to trigger bot reload: {e}"
