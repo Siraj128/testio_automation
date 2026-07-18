@@ -233,7 +233,10 @@ class TestIOBot:
                         pass
                 _last_schedule_mode = schedule_mode
 
-                if schedule_mode == "sleep":
+                # Check for forced overdrive overrides
+                is_overdrive = getattr(self, "force_overdrive", False)
+                
+                if schedule_mode == "sleep" and not is_overdrive:
                     if self.status.state != BotState.SLEEPING:
                         logger.info("Schedule mode is 'sleep'. Going to sleep...")
                         try:
@@ -491,11 +494,12 @@ class TestIOBot:
             logger.info("⚡ Instant reload triggered by external event!")
             self._instant_reload_event.set()
 
-    def set_poll_speed(self, min_sec: int, max_sec: int) -> None:
+    def set_poll_speed(self, min_sec: int, max_sec: int, overdrive: bool = False) -> None:
         """Dynamically adjust the polling interval in memory."""
         self.config.setdefault("testio", {})["poll_interval_min"] = min_sec
         self.config["testio"]["poll_interval_max"] = max_sec
-        logger.info(f"🏎️ Polling speed set to: {min_sec}-{max_sec}s")
+        self.force_overdrive = overdrive
+        logger.info(f"🏎️ Polling speed set to: {min_sec}-{max_sec}s (Overdrive={overdrive})")
         # Wake up immediately to adopt new speed
         self.trigger_instant_reload()
 
@@ -508,5 +512,6 @@ class TestIOBot:
         
         self.config.setdefault("testio", {})["poll_interval_min"] = min_sec
         self.config["testio"]["poll_interval_max"] = max_sec
+        self.force_overdrive = False
         logger.info(f"🔄 Polling speed reset to config.yaml schedule defaults: {min_sec}-{max_sec}s")
         self.trigger_instant_reload()

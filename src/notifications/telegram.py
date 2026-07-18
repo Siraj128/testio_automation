@@ -412,6 +412,8 @@ async def _cmd_speed(update, context) -> None:
         [InlineKeyboardButton("🚶 Normal (20-60s)", callback_data="speed_20_60")],
         [InlineKeyboardButton("🏃 Fast (10-25s)", callback_data="speed_10_25")],
         [InlineKeyboardButton("⚡ Turbo (5-12s)", callback_data="speed_5_12")],
+        [InlineKeyboardButton("🔥 24/7 Overdrive (No Sleep)", callback_data="speed_15_30_overdrive")],
+        [InlineKeyboardButton("🧨 1s Extreme (Ban Risk!)", callback_data="speed_1_2_overdrive")],
         [InlineKeyboardButton("🔄 Auto (Schedule Default)", callback_data="speed_auto")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -438,9 +440,16 @@ async def _btn_speed(update, context) -> None:
         parts = query.data.split("_")
         min_sec = int(parts[1])
         max_sec = int(parts[2])
+        is_overdrive = len(parts) > 3 and parts[3] == "overdrive"
         
-        bot.set_poll_speed(min_sec, max_sec)
-        await query.edit_message_text(text=f"🏎️ Speed adjusted to {min_sec}-{max_sec}s")
+        bot.set_poll_speed(min_sec, max_sec, overdrive=is_overdrive)
+        
+        if min_sec == 1:
+            await query.edit_message_text(text="🧨 EXTREME MODE: Checking every 1 second and ignoring sleep schedule! (Warning: High risk of IP ban)")
+        elif is_overdrive:
+            await query.edit_message_text(text=f"🔥 OVERDRIVE: Polling {min_sec}-{max_sec}s 24/7. Sleep schedule is IGNORED.")
+        else:
+            await query.edit_message_text(text=f"🏎️ Speed adjusted to {min_sec}-{max_sec}s")
     except Exception as e:
         await query.edit_message_text(text=f"Error: {e}")
 
