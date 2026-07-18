@@ -21,7 +21,9 @@ async def check_for_invitations(page: Page, dashboard_url: str, config: dict) ->
         await page.goto(dashboard_url, wait_until="domcontentloaded", timeout=30000)
         
         try:
-            await page.wait_for_load_state("networkidle", timeout=5000)
+            # We don't use networkidle because it's too slow. Instead, we'll fast-poll for tests.
+            # But first, give a tiny buffer for React to mount
+            await page.wait_for_timeout(500)
         except Exception:
             pass
 
@@ -37,67 +39,53 @@ async def check_for_invitations(page: Page, dashboard_url: str, config: dict) ->
         if config.get("screenshots", {}).get("every_poll", False):
             await capture(page, "poll")
 
-        # Check for the explicit "no available jobs" message on the Available Tasks page
-        page_text = await page.text_content("body") or ""
-        no_jobs_phrases = [
-            "you don't have any available jobs",
-            "no available jobs",
-            "no test invitations",
-            "no available tasks",
-            "no tests available",
+        invitation_selectors = [
+            'a[href*="test_cycle"]', 'a[href*="available_tasks"]',
+            '[data-testid*="test-cycle"]', '[data-testid*="task"]', '.test-cycle-card',
+            'table tbody tr', '.task-list-item', '.available-task',
+            'main .card', '.content .card', '#content .card',
+            '[class*="invitation"]', '[class*="task-card"]', '[class*="test-card"]',
+            '[class*="cycle"]', '[class*="seat"]', 'main a:not([href="/"])',
         ]
-        page_text_lower = page_text.lower()
-        for phrase in no_jobs_phrases:
-            if phrase in page_text_lower:
-                logger.info(f"❌ No tests available: '{phrase}' found on page")
+
+        # Fast polling loop: check for "no jobs" or "available jobs" instantly as they render
+        import time
+        start_time = time.time()
+        found_tests = []
+        
+        while time.time() - start_time < 10.0:  # 10 second max wait
+            page_text = await page.text_content("body") or ""
+            page_text_lower = page_text.lower()
+            
+            # 1. Check if the empty state rendered
+            no_jobs_phrases = [
+                "you don't have any available jobs", "no available jobs",
+                "no test invitations", "no available tasks", "no tests available"
+            ]
+            if any(phrase in page_text_lower for phrase in no_jobs_phrases):
+                logger.info("❌ No tests available (empty state rendered)")
                 return []
 
-        # ---- Look for test invitation elements on the Available Tasks page ----
-        # These selectors cover common patterns for test cards/rows on Test.io
-        invitation_selectors = [
-            # Links or cards that contain test cycle info
-            'a[href*="test_cycle"]',
-            'a[href*="available_tasks"]',
-            '[data-testid*="test-cycle"]',
-            '[data-testid*="task"]',
-            '.test-cycle-card',
-            # Table rows or list items in the available tasks area
-            'table tbody tr',
-            '.task-list-item',
-            '.available-task',
-            # Generic card/row selectors within the main content area
-            'main .card',
-            '.content .card',
-            '#content .card',
-            # Any clickable element that looks like a test listing
-            '[class*="invitation"]',
-            '[class*="task-card"]',
-            '[class*="test-card"]',
-            '[class*="cycle"]',
-            # Seat-related elements
-            '[class*="seat"]',
-            # Broad fallback: any <a> tag in the main area that isn't navigation
-            'main a:not([href="/"])',
-        ]
+            # 2. Check if test cards rendered
+            for selector in invitation_selectors:
+                try:
+                    elements = await page.query_selector_all(selector)
+                    if elements:
+                        for el in elements:
+                            if await el.is_visible():
+                                text = (await el.text_content() or "").strip()
+                                if len(text) > 10:
+                                    found_tests.append(el)
+                        if found_tests:
+                            logger.info(f"⚡ Found {len(found_tests)} test(s) in {time.time() - start_time:.1f}s via {selector}")
+                            return found_tests
+                except Exception:
+                    continue
+            
+            await page.wait_for_timeout(250)
 
-        found_tests = []
-
-        for selector in invitation_selectors:
-            try:
-                elements = await page.query_selector_all(selector)
-                if elements:
-                    for el in elements:
-                        is_visible = await el.is_visible()
-                        if is_visible:
-                            # Check element has meaningful text (not just whitespace/navigation)
-                            text = (await el.text_content() or "").strip()
-                            if len(text) > 10:  # Real test entries have substantial text
-                                found_tests.append(el)
-                    if found_tests:
-                        logger.info(f"Found {len(found_tests)} potential test(s) with selector: {selector}")
-                        break
-            except Exception:
-                continue
+        logger.warning("⏳ Timeout waiting for tests or empty state to render.")
+        return []
 
         # Apply keyword filters
         filter_keywords = testio_config.get("filter_keywords", [])

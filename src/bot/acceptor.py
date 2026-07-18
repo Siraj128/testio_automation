@@ -54,7 +54,11 @@ async def accept_test(page: Page, test_element, dry_run: bool = False) -> dict:
 
         # Click the test card to navigate to the overview page
         await test_element.click()
-        await page.wait_for_load_state("domcontentloaded", timeout=15000)
+        try:
+            # Short wait for navigation, but don't block if it's an SPA transition
+            await page.wait_for_load_state("domcontentloaded", timeout=2000)
+        except Exception:
+            pass
 
         # Try to extract test ID from URL
         current_url = page.url
