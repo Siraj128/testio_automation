@@ -2,7 +2,7 @@ testio:
   enabled: true
   mode: "auto"                    # auto | manual | dry-run
   login_url: "https://tester.test.io"
-  dashboard_url: "https://tester.test.io/available_tasks"
+  dashboard_url: "https://tester.test.io/users/dashboard"
   poll_interval_min: 20           # seconds (minimum between checks)
   poll_interval_max: 60           # seconds (maximum between checks)
   max_active_tests: 2             # respect tester level limit
