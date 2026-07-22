@@ -164,15 +164,16 @@ async def notify_email_reconnected(config: dict) -> None:
     await send_message("📧 *Email Reconnected*\nIMAP listener is back online.", config)
 
 
-async def notify_accept_attempt(attempt: int, max_attempts: int, status: str, 
+async def notify_accept_attempt(phase: str, attempt: int, max_attempts: int, status: str, 
                                  screenshot_path: str | None, config: dict) -> None:
-    """Send a real-time update for each acceptance retry attempt."""
+    """Send a real-time update for each acceptance retry attempt in a specific phase."""
+    emoji = "🔔" if phase == "Notification Phase" else "🔄"
     text = (
-        f"🔄 *Attempt {attempt}/{max_attempts}*\n"
+        f"{emoji} *{phase} — Attempt {attempt}/{max_attempts}*\n"
         f"Status: {status}\n"
     )
     if attempt < max_attempts:
-        text += "⏳ Retrying in 5 seconds..."
+        text += "⏳ Retrying in a few seconds..."
     
     notif_config = config.get("notifications", {})
     if screenshot_path and notif_config.get("send_screenshot", True):

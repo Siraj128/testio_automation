@@ -129,3 +129,87 @@ async def check_for_invitations(page: Page, dashboard_url: str, config: dict) ->
 async def wait_for_next_poll(config: dict, schedule_mode: str = "normal") -> None:
     """Wait the randomized interval before the next poll cycle."""
     await poll_interval(config, schedule_mode)
+
+
+async def check_notifications_dropdown(page, config: dict) -> list:
+    """Phase 1: Click the notification bell and look for test invitations in the dropdown."""
+    import time
+    from ..screenshots.manager import capture
+    
+    logger.info("🔔 Phase 1: Checking notification dropdown...")
+    
+    # A wide net of standard notification bell selectors
+    bell_selectors = [
+        '[aria-label*="notification" i]',
+        '[data-testid*="notification"]',
+        '.notifications-bell',
+        '.fa-bell',
+        'i[class*="bell"]',
+        'a[href*="notifications"]',
+        'button[class*="notification"]'
+    ]
+    
+    bell_clicked = False
+    for selector in bell_selectors:
+        try:
+            elements = await page.query_selector_all(selector)
+            for el in elements:
+                if await el.is_visible():
+                    await el.click(timeout=3000)
+                    logger.info(f"👉 Clicked notification bell using selector: {selector}")
+                    bell_clicked = True
+                    break
+        except Exception:
+            continue
+        if bell_clicked:
+            break
+            
+    if not bell_clicked:
+        logger.warning("❌ Could not find/click the notification bell icon.")
+        return []
+        
+    # Wait briefly for dropdown to animate/render
+    await page.wait_for_timeout(1000)
+    
+    if config.get("screenshots", {}).get("every_poll", False):
+        await capture(page, "notification_dropdown")
+        
+    # Look for invitation links inside the dropdown
+    dropdown_selectors = [
+        '.dropdown-menu a[href*="test_cycle"]',
+        '[class*="notification"] a[href*="test_cycle"]',
+        '[class*="dropdown"] a[href*="test_cycle"]',
+        '.notifications-list-item a',
+        'a[href*="test_cycle"]',
+        'div[class*="notification"] a'
+    ]
+    
+    start_time = time.time()
+    found_tests = []
+    
+    while time.time() - start_time < 5.0:  # 5 second wait for dropdown content
+        for selector in dropdown_selectors:
+            try:
+                elements = await page.query_selector_all(selector)
+                for el in elements:
+                    if await el.is_visible():
+                        text = (await el.text_content() or "").lower()
+                        if "invitation" in text or "cycle" in text or "test" in text or "#" in text:
+                            found_tests.append(el)
+                
+                if found_tests:
+                    logger.info(f"⚡ Found {len(found_tests)} test(s) in dropdown via {selector}")
+                    return found_tests
+            except Exception:
+                continue
+        await page.wait_for_timeout(250)
+        
+    logger.warning("⏳ No tests found in notification dropdown.")
+    
+    # Try to close the dropdown
+    try:
+        await page.mouse.click(0, 0)
+    except Exception:
+        pass
+        
+    return []
