@@ -83,38 +83,58 @@ async def _parse_email_headers(fetch_response) -> tuple[str, str]:
         return "", "", "", ""
 
 
-def _is_invitation(subject: str) -> bool:
-    """Check if an email subject indicates a genuine test invitation.
+def _is_invitation(subject: str, body_preview: str = "") -> bool:
+    """Check if an email is a genuine test invitation.
     
-    Uses a two-tier filter:
-    1. Positive keywords — phrases that ONLY appear in real invitation emails
-    2. Negative blocklist — reject subjects containing non-invitation phrases
+    Uses real Cirro/Test.io email patterns observed in the wild:
     
-    This prevents non-invitation Test.io emails (feedback, payments, results,
-    reminders, account notifications) from falsely triggering the bot.
+    REAL invitation emails contain:
+      - Body: "There is a new test invitation matching your profile"
+      - Subject typically contains "invitation"
+      
+    FALSE POSITIVE emails that must be rejected:
+      - "We just accepted your offer to participate in the test cycle"
+      - "You were mentioned in test cycle #150886"
+      - "Congratulations! You have just received a badge"
+      - Newsletters with "ranking season", "academy", "community"
     """
     subject_lower = subject.lower()
+    body_lower = body_preview.lower()
     
-    # --- Tier 1: Negative blocklist (reject these immediately) ---
+    # === BODY CHECK (most reliable — the golden signal) ===
+    # Every real Cirro invitation email contains this exact phrase in the body
+    if "new test invitation matching your profile" in body_lower:
+        return True
+    
+    # === SUBJECT-BASED FALLBACK ===
+    
+    # --- Negative blocklist: reject these subjects immediately ---
     blocklist = [
-        "test results", "feedback", "payment", "payout", "invoice",
-        "report", "reminder", "account", "password", "profile",
-        "welcome", "verify", "confirmation", "newsletter", "survey",
-        "rating", "review", "update your", "unsubscribe", "support ticket",
-        "bug report", "test case", "device", "instruction update",
+        # Confirmations & account
+        "accepted your offer", "congratulations", "badge",
+        "we just accepted", "you were mentioned", "mentioned in",
+        # Feedback & results
+        "test results", "feedback", "bug report", "test case",
+        # Payments & admin
+        "payment", "payout", "invoice", "receipt",
+        # Account & profile
+        "account", "password", "profile", "welcome", "verify",
+        # Communications
+        "newsletter", "survey", "ranking", "academy", "community",
+        "town hall", "updates", "tips",
+        "reminder", "confirmation", "unsubscribe", "support ticket",
+        "rating", "review", "instruction update", "device",
     ]
     if any(blocked in subject_lower for blocked in blocklist):
         return False
     
-    # --- Tier 2: Positive keywords (must match at least one) ---
+    # --- Positive subject keywords (only if body check didn't trigger) ---
     invitation_phrases = [
-        "invitation",           # "New Test Invitation", "Test Cycle Invitation"
-        "invited",              # "You have been invited"
-        "new test",             # "New test available" (but NOT "new test results" — blocked above)
-        "available test",       # "Available test cycle"
-        "test cycle",           # "Test cycle #12345"
+        "new test invitation",  # Most common real subject
+        "test invitation",      # Broad but safe (blocklist catches false positives)
+        "invitation",           # "Test Cycle Invitation"
+        "invited to test",      # "You have been invited to test"
         "take a seat",          # "Take a seat on..."
-        "join",                 # "Join this test"
         "open seat",            # "Open seat available"
     ]
     return any(phrase in subject_lower for phrase in invitation_phrases)
@@ -154,26 +174,63 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
 
     for msg_id in sorted(msg_ids, key=lambda x: int(x)):
         try:
+            # Fetch headers AND a body preview (first 2KB) for accurate filtering
             fetch_response = await client.fetch(
-                msg_id, '(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID DATE)])'
+                msg_id, '(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID DATE)] BODY.PEEK[TEXT]<0.2048>)'
             )
             if fetch_response.result != 'OK':
                 logger.warning(f"Fetch failed for msg {msg_id}: {fetch_response.result}")
                 continue
 
-            from_addr, subject, msg_id_hdr, date_hdr = await _parse_email_headers(fetch_response)
+            # Parse all raw response lines
+            raw_text = ""
+            for line in fetch_response.lines:
+                if isinstance(line, (bytes, bytearray)):
+                    raw_text += line.decode('utf-8', errors='ignore') + "\n"
+                elif isinstance(line, str):
+                    raw_text += line + "\n"
+
+            import re
+            from email.header import decode_header
+
+            def _dec(text):
+                if not text:
+                    return ""
+                try:
+                    parts = decode_header(text)
+                    res = ""
+                    for p, enc in parts:
+                        if isinstance(p, bytes):
+                            res += p.decode(enc or 'utf-8', errors='ignore')
+                        else:
+                            res += p
+                    return res
+                except Exception:
+                    return text
+
+            from_match = re.search(r'(?i)From:\s*([^\r\n]+)', raw_text)
+            subj_match = re.search(r'(?i)Subject:\s*([^\r\n]+)', raw_text)
+            mid_match = re.search(r'(?i)Message-ID:\s*([^\r\n]+)', raw_text)
+            date_match = re.search(r'(?i)Date:\s*([^\r\n]+)', raw_text)
+
+            from_addr = _dec(from_match.group(1).strip()) if from_match else ""
+            subject = _dec(subj_match.group(1).strip()) if subj_match else ""
+            msg_id_hdr = _dec(mid_match.group(1).strip()) if mid_match else ""
+            date_hdr = _dec(date_match.group(1).strip()) if date_match else ""
+            
+            # Extract body preview (everything after the header block)
+            body_preview = raw_text  # The full raw text includes the body preview
             
             # Generate a unique fingerprint for this email
             if msg_id_hdr:
                 fingerprint = msg_id_hdr
             else:
-                # Fallback if Message-ID is missing (some automated or spoofed emails)
                 raw_fp = f"{from_addr}|{subject}|{date_hdr}"
                 fingerprint = "hash:" + hashlib.md5(raw_fp.encode('utf-8')).hexdigest()
                 
             logger.info(f"  📩 Email #{msg_id}: From={from_addr}, Subject={subject}")
 
-            if _is_invitation(subject):
+            if _is_invitation(subject, body_preview):
                 # Check if we've already processed this exact email
                 if await stats.is_email_processed(fingerprint):
                     logger.info(f"  ℹ️ Email {fingerprint} already processed. Skipping to avoid reload loop.")
@@ -196,11 +253,9 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
                 await stats.mark_email_processed(fingerprint)
                 trigger_callback()
             else:
-                logger.info(f"  ℹ️ Non-invitation email, skipping trigger")
+                logger.info(f"  ℹ️ Non-invitation email, skipping: {subject[:60]}")
 
             # We intentionally DO NOT mark the email as \Seen here anymore.
-            # This allows the email to remain unread in the user's inbox, 
-            # while the local database prevents the bot from infinitely reloading.
 
         except Exception as e:
             logger.warning(f"Error processing email {msg_id}: {e}")
