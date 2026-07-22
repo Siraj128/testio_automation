@@ -40,6 +40,8 @@ async def accept_test(page: Page, test_element, dry_run: bool = False) -> dict:
         "test_id": "",
         "screenshot_path": None,
         "error": "",
+        "seats_full": False,       # True when seats are full or already joined (terminal)
+        "terminal_error": False,   # True when retrying won't help
     }
 
     try:
@@ -243,13 +245,29 @@ async def accept_test(page: Page, test_element, dry_run: bool = False) -> dict:
             '.error',
         ]
 
+        # These phrases indicate terminal errors (no point retrying)
+        terminal_phrases = [
+            "seats are full", "no more seats", "limit reached",
+            "already joined", "not available", "no longer available",
+            "fully booked", "no seats", "all seats taken",
+        ]
+
         for indicator in error_indicators:
             try:
                 el = await page.query_selector(indicator)
                 if el:
-                    error_text = await el.text_content()
-                    result["error"] = error_text or "Unknown error"
-                    logger.error(f"❌ Acceptance failed: {result['error']}")
+                    error_text = (await el.text_content() or "Unknown error").strip()
+                    result["error"] = error_text
+                    
+                    # Check if this is a terminal "seats full" type error
+                    error_lower = error_text.lower()
+                    if any(phrase in error_lower for phrase in terminal_phrases):
+                        result["seats_full"] = True
+                        result["terminal_error"] = True
+                        logger.error(f"🛑 Terminal error (seats full): {error_text}")
+                    else:
+                        logger.error(f"❌ Acceptance failed: {error_text}")
+                    
                     await capture(page, "accept_failed", result["test_id"])
                     return result
             except Exception:

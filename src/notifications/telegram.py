@@ -164,6 +164,52 @@ async def notify_email_reconnected(config: dict) -> None:
     await send_message("📧 *Email Reconnected*\nIMAP listener is back online.", config)
 
 
+async def notify_accept_attempt(attempt: int, max_attempts: int, status: str, 
+                                 screenshot_path: str | None, config: dict) -> None:
+    """Send a real-time update for each acceptance retry attempt."""
+    text = (
+        f"🔄 *Attempt {attempt}/{max_attempts}*\n"
+        f"Status: {status}\n"
+    )
+    if attempt < max_attempts:
+        text += "⏳ Retrying in 5 seconds..."
+    
+    notif_config = config.get("notifications", {})
+    if screenshot_path and notif_config.get("send_screenshot", True):
+        await send_photo(screenshot_path, text, config)
+    else:
+        await send_message(text, config)
+
+
+async def notify_accept_final(success: bool, test_name: str, attempt: int,
+                               error: str, screenshot_path: str | None, 
+                               config: dict) -> None:
+    """Send the final summary after the retry loop ends."""
+    if success:
+        text = (
+            f"✅ *Test Accepted on Attempt {attempt}!*\n\n"
+            f"🎯 {test_name}"
+        )
+    elif "seats" in error.lower() or "full" in error.lower():
+        text = (
+            f"🛑 *Seats Full* after {attempt} attempt(s)\n\n"
+            f"Test: {test_name}\n"
+            f"Error: {error}"
+        )
+    else:
+        text = (
+            f"❌ *Gave Up* after {attempt} attempt(s)\n\n"
+            f"Test: {test_name}\n"
+            f"Last error: {error}"
+        )
+    
+    notif_config = config.get("notifications", {})
+    if screenshot_path and notif_config.get("send_screenshot", True):
+        await send_photo(screenshot_path, text, config)
+    else:
+        await send_message(text, config)
+
+
 # ==========================================
 # HEARTBEAT & DAILY SUMMARY BACKGROUND TASKS
 # ==========================================

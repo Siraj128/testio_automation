@@ -84,12 +84,40 @@ async def _parse_email_headers(fetch_response) -> tuple[str, str]:
 
 
 def _is_invitation(subject: str) -> bool:
-    """Check if an email subject indicates a test invitation."""
+    """Check if an email subject indicates a genuine test invitation.
+    
+    Uses a two-tier filter:
+    1. Positive keywords — phrases that ONLY appear in real invitation emails
+    2. Negative blocklist — reject subjects containing non-invitation phrases
+    
+    This prevents non-invitation Test.io emails (feedback, payments, results,
+    reminders, account notifications) from falsely triggering the bot.
+    """
     subject_lower = subject.lower()
-    return any(
-        k in subject_lower
-        for k in ["invitation", "invited", "new test", "test cycle", "available"]
-    )
+    
+    # --- Tier 1: Negative blocklist (reject these immediately) ---
+    blocklist = [
+        "test results", "feedback", "payment", "payout", "invoice",
+        "report", "reminder", "account", "password", "profile",
+        "welcome", "verify", "confirmation", "newsletter", "survey",
+        "rating", "review", "update your", "unsubscribe", "support ticket",
+        "bug report", "test case", "device", "instruction update",
+    ]
+    if any(blocked in subject_lower for blocked in blocklist):
+        return False
+    
+    # --- Tier 2: Positive keywords (must match at least one) ---
+    invitation_phrases = [
+        "invitation",           # "New Test Invitation", "Test Cycle Invitation"
+        "invited",              # "You have been invited"
+        "new test",             # "New test available" (but NOT "new test results" — blocked above)
+        "available test",       # "Available test cycle"
+        "test cycle",           # "Test cycle #12345"
+        "take a seat",          # "Take a seat on..."
+        "join",                 # "Join this test"
+        "open seat",            # "Open seat available"
+    ]
+    return any(phrase in subject_lower for phrase in invitation_phrases)
 
 
 async def _do_imap_search(client, search_query: str) -> set[str]:

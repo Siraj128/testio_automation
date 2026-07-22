@@ -47,6 +47,8 @@ class TestIOBot:
         self._running = False
         self._paused = False
         self._instant_reload_event = asyncio.Event()
+        self._email_triggered = False  # Set when email listener triggers reload
+        self.force_overdrive = False
         _bot_instance = self
 
     @property
@@ -256,123 +258,194 @@ class TestIOBot:
                             pass
 
             try:
-                # Poll for invitations
-                self.status.set_state(BotState.CHECKING)
-                await increment_refresh()
-                invitations = await check_for_invitations(
-                    self._page, self.dashboard_url, self.config
-                )
+                # Capture whether this iteration was triggered by email
+                is_email_triggered = self._email_triggered
+                self._email_triggered = False  # Reset immediately
+                
+                max_retry_attempts = 10
+                attempt = 0
+                
+                while True:
+                    attempt += 1
+                    
+                    # Poll for invitations
+                    self.status.set_state(BotState.CHECKING)
+                    await increment_refresh()
+                    invitations = await check_for_invitations(
+                        self._page, self.dashboard_url, self.config
+                    )
 
-                if not invitations:
-                    # Check if session expired (monitor returns empty + redirect)
-                    current_url = self._page.url.lower()
-                    if any(x in current_url for x in ["login", "sign_in", "cirro"]):
-                        logger.warning("Session expired — re-authenticating...")
+                    if not invitations:
+                        # Check if session expired (monitor returns empty + redirect)
+                        current_url = self._page.url.lower()
+                        if any(x in current_url for x in ["login", "sign_in", "cirro"]):
+                            logger.warning("Session expired — re-authenticating...")
+                            try:
+                                from ..notifications.telegram import notify_status
+                                await notify_status("⚠️ *Session Expired*\nRe-authenticating...", self.config)
+                            except Exception:
+                                pass
+                            await self._authenticate()
+                            try:
+                                from ..notifications.telegram import notify_reauth_success
+                                await notify_reauth_success(self.config)
+                            except Exception:
+                                pass
+                            continue  # Retry after re-auth
+
+                        # No tests found on dashboard
+                        if is_email_triggered and attempt < max_retry_attempts:
+                            # Email said there's an invitation, but dashboard hasn't updated yet
+                            logger.info(f"📧 Email-triggered attempt {attempt}/{max_retry_attempts}: No tests on dashboard yet, retrying in 5s...")
+                            try:
+                                from ..notifications.telegram import notify_accept_attempt
+                                await notify_accept_attempt(
+                                    attempt, max_retry_attempts,
+                                    "No tests visible on dashboard yet — waiting for page to update",
+                                    None, self.config
+                                )
+                            except Exception:
+                                pass
+                            await asyncio.sleep(5)
+                            continue
+                        else:
+                            # Normal poll cycle or max retries exhausted
+                            if is_email_triggered and attempt >= max_retry_attempts:
+                                logger.warning(f"⏰ Email-triggered: gave up after {attempt} attempts — no tests appeared on dashboard")
+                                try:
+                                    from ..notifications.telegram import notify_accept_final
+                                    await notify_accept_final(
+                                        False, "Unknown", attempt,
+                                        "No tests appeared on dashboard after all attempts",
+                                        None, self.config
+                                    )
+                                except Exception:
+                                    pass
+                            break  # Exit retry loop → go to idle
+
+                    # Check if we've hit the active test limit
+                    if self.status.active_test_count >= max_active:
+                        logger.info(f"At max active tests ({max_active}) — skipping")
                         try:
                             from ..notifications.telegram import notify_status
-                            await notify_status("⚠️ *Session Expired*\nRe-authenticating...", self.config)
+                            await notify_status(f"🛑 *Limit Reached*\nMax active tests ({max_active}) reached. Pausing accepts.", self.config)
                         except Exception:
                             pass
-                        await self._authenticate()
+                        break  # Exit retry loop
+
+                    # ⚡ TEST FOUND — ACCEPT
+                    for invitation in invitations:
+                        if not self._running:
+                            break
+                        if self.status.active_test_count >= max_active:
+                            logger.info("Reached max active tests — stopping acceptance")
+                            break
+
+                        self.status.set_state(BotState.FOUND_TEST)
+
+                        # 🔍 Notify: Test Spotted!
                         try:
-                            from ..notifications.telegram import notify_reauth_success
-                            await notify_reauth_success(self.config)
+                            test_name_preview = (await invitation.text_content() or "Unknown").strip()[:100]
+                            from ..notifications.telegram import notify_test_spotted
+                            await notify_test_spotted(test_name_preview, self.config)
                         except Exception:
                             pass
-                        continue
 
-                    self.status.set_state(BotState.IDLE)
-                    await self._wait_for_next_poll_or_trigger(schedule_mode)
-                    continue
+                        self.status.set_state(BotState.ACCEPTING)
 
-                # Check if we've hit the active test limit
-                if self.status.active_test_count >= max_active:
-                    logger.info(
-                        f"At max active tests ({max_active}) — skipping"
-                    )
-                    try:
-                        from ..notifications.telegram import notify_status
-                        await notify_status(f"🛑 *Limit Reached*\nMax active tests ({max_active}) reached. Pausing accepts.", self.config)
-                    except Exception:
-                        pass
-                    self.status.set_state(BotState.IDLE)
-                    await self._wait_for_next_poll_or_trigger(schedule_mode)
-                    continue
-
-                # ⚡ TEST FOUND — ACCEPT INSTANTLY
-                for invitation in invitations:
-                    if not self._running:
-                        break
-                    if self.status.active_test_count >= max_active:
-                        logger.info("Reached max active tests — stopping acceptance")
-                        break
-
-                    self.status.set_state(BotState.FOUND_TEST)
-
-                    # 🔍 Notify: Test Spotted!
-                    try:
-                        test_name_preview = (await invitation.text_content() or "Unknown").strip()[:100]
-                        from ..notifications.telegram import notify_test_spotted
-                        await notify_test_spotted(test_name_preview, self.config)
-                    except Exception:
-                        pass
-
-                    self.status.set_state(BotState.ACCEPTING)
-
-                    result = await accept_test(
-                        self._page,
-                        invitation,
-                        dry_run=self.is_dry_run,
-                    )
-
-                    if result["success"]:
-                        self.status.set_state(BotState.ACCEPTED)
-                        await increment_accepted()
-                        self.status.current_test_name = result["test_name"]
-                        self.status.active_test_count += 1
-                        logger.info(
-                            f"🎉 Accepted: {result['test_name']} "
-                            f"(total today: {self.status.tests_accepted_today})"
+                        result = await accept_test(
+                            self._page,
+                            invitation,
+                            dry_run=self.is_dry_run,
                         )
 
-                        # Try to send notification (import here to avoid circular)
-                        try:
-                            from ..notifications.telegram import notify_accepted
-                            await notify_accepted(
-                                result["test_name"],
-                                result.get("screenshot_path"),
-                                self.config,
+                        if result["success"]:
+                            self.status.set_state(BotState.ACCEPTED)
+                            await increment_accepted()
+                            self.status.current_test_name = result["test_name"]
+                            self.status.active_test_count += 1
+                            logger.info(
+                                f"🎉 Accepted: {result['test_name']} "
+                                f"(total today: {self.status.tests_accepted_today})"
                             )
-                        except ImportError:
-                            pass  # Notifications module not yet built
-                        except Exception as e:
-                            logger.warning(f"Notification failed: {e}")
-                    else:
-                        self.status.set_state(
-                            BotState.FAILED, result.get("error", "Unknown")
-                        )
-                        await increment_failed()
-                        logger.warning(
-                            f"❌ Failed: {result['test_name']} — {result['error']}"
-                        )
-                        try:
-                            from ..notifications.telegram import notify_error
-                            await notify_error(
-                                result.get("error", "Unknown"),
-                                result.get("screenshot_path"),
-                                self.config,
-                            )
-                        except ImportError:
-                            pass
-                        except Exception as e:
-                            logger.warning(f"Error notification failed: {e}")
 
-                    # Navigate back to dashboard for next invitation
-                    await self._page.goto(
-                        self.dashboard_url,
-                        wait_until="domcontentloaded",
-                        timeout=15000,
-                    )
+                            try:
+                                from ..notifications.telegram import notify_accept_final
+                                await notify_accept_final(
+                                    True, result["test_name"], attempt,
+                                    "", result.get("screenshot_path"), self.config
+                                )
+                            except Exception as e:
+                                logger.warning(f"Notification failed: {e}")
+                            
+                            is_email_triggered = False  # Success — stop retrying
+                            break
+
+                        else:
+                            # Acceptance failed
+                            error_msg = result.get("error", "Unknown")
+                            is_terminal = result.get("terminal_error", False)
+                            is_seats_full = result.get("seats_full", False)
+                            
+                            if is_terminal:
+                                # Terminal error — no point retrying
+                                self.status.set_state(BotState.FAILED, error_msg)
+                                await increment_failed()
+                                logger.warning(f"🛑 Terminal failure: {result['test_name']} — {error_msg}")
+                                
+                                try:
+                                    from ..notifications.telegram import notify_accept_final
+                                    await notify_accept_final(
+                                        False, result["test_name"], attempt,
+                                        error_msg, result.get("screenshot_path"), self.config
+                                    )
+                                except Exception:
+                                    pass
+                                is_email_triggered = False  # Stop retrying
+                                break
+                            
+                            elif is_email_triggered and attempt < max_retry_attempts:
+                                # Retryable error + email triggered → keep trying
+                                logger.warning(
+                                    f"❌ Attempt {attempt}/{max_retry_attempts} failed: "
+                                    f"{result['test_name']} — {error_msg}. Retrying..."
+                                )
+                                try:
+                                    from ..notifications.telegram import notify_accept_attempt
+                                    await notify_accept_attempt(
+                                        attempt, max_retry_attempts,
+                                        error_msg, result.get("screenshot_path"), self.config
+                                    )
+                                except Exception:
+                                    pass
+                                # Don't break — will navigate back and retry
+                            else:
+                                # Normal poll failure or max retries hit
+                                self.status.set_state(BotState.FAILED, error_msg)
+                                await increment_failed()
+                                logger.warning(f"❌ Failed: {result['test_name']} — {error_msg}")
+                                try:
+                                    from ..notifications.telegram import notify_accept_final
+                                    await notify_accept_final(
+                                        False, result["test_name"], attempt,
+                                        error_msg, result.get("screenshot_path"), self.config
+                                    )
+                                except Exception:
+                                    pass
+                                is_email_triggered = False
+                                break
+
+                        # Navigate back to dashboard for retry
+                        await self._page.goto(
+                            self.dashboard_url,
+                            wait_until="domcontentloaded",
+                            timeout=15000,
+                        )
+                        await asyncio.sleep(5)  # Brief pause between retries
+                    
+                    # If we didn't break out of the for loop, we've processed all invitations
+                    if not is_email_triggered:
+                        break
 
                 # Return to idle
                 self.status.set_state(BotState.IDLE)
@@ -492,6 +565,7 @@ class TestIOBot:
         """Interrupt the current delay and force an immediate dashboard refresh."""
         if not self._instant_reload_event.is_set():
             logger.info("⚡ Instant reload triggered by external event!")
+            self._email_triggered = True  # Signal the retry loop
             self._instant_reload_event.set()
 
     def set_poll_speed(self, min_sec: int, max_sec: int, overdrive: bool = False) -> None:
