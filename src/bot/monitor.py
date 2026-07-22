@@ -40,12 +40,10 @@ async def check_for_invitations(page: Page, dashboard_url: str, config: dict) ->
             await capture(page, "poll")
 
         invitation_selectors = [
-            'a[href*="test_cycle"]', 'a[href*="available_tasks"]',
-            '[data-testid*="test-cycle"]', '[data-testid*="task"]', '.test-cycle-card',
-            'table tbody tr', '.task-list-item', '.available-task',
-            'main .card', '.content .card', '#content .card',
+            'main a[href*="test_cycle"]', '.content a[href*="test_cycle"]',
+            '[data-testid*="test-cycle"]', '.test-cycle-card',
             '[class*="invitation"]', '[class*="task-card"]', '[class*="test-card"]',
-            '[class*="cycle"]', '[class*="seat"]', 'main a:not([href="/"])',
+            'button:has-text("Accept")'
         ]
 
         # Fast polling loop: check for "no jobs" or "available jobs" instantly as they render
@@ -140,6 +138,9 @@ async def check_notifications_dropdown(page, config: dict) -> list:
     
     # A wide net of standard notification bell selectors
     bell_selectors = [
+        '.icon-bell',
+        'div[class*="bell"]',
+        '.NotificationCenter',
         '[aria-label*="notification" i]',
         '[data-testid*="notification"]',
         '.notifications-bell',
@@ -174,37 +175,60 @@ async def check_notifications_dropdown(page, config: dict) -> list:
     if config.get("screenshots", {}).get("every_poll", False):
         await capture(page, "notification_dropdown")
         
-    # Look for invitation links inside the dropdown
-    dropdown_selectors = [
-        '.dropdown-menu a[href*="test_cycle"]',
-        '[class*="notification"] a[href*="test_cycle"]',
-        '[class*="dropdown"] a[href*="test_cycle"]',
-        '.notifications-list-item a',
-        'a[href*="test_cycle"]',
-        'div[class*="notification"] a'
+    # Look for the whole notification items first to check their full text (including time)
+    notification_item_selectors = [
+        'div.notification',
+        '.notifications-list-item',
+        'div[role="menuitem"]',
+        '.dropdown-menu > div',
+        '.dropdown-menu > li'
     ]
     
     start_time = time.time()
     found_tests = []
     
+    import re
+    recent_patterns = [r'seconds? ago', r'just now', r'a minute ago', r'[1-5] minutes? ago']
+    
     while time.time() - start_time < 5.0:  # 5 second wait for dropdown content
-        for selector in dropdown_selectors:
+        for selector in notification_item_selectors:
             try:
-                elements = await page.query_selector_all(selector)
-                for el in elements:
-                    if await el.is_visible():
-                        text = (await el.text_content() or "").lower()
-                        if "invitation" in text or "cycle" in text or "test" in text or "#" in text:
-                            found_tests.append(el)
-                
+                containers = await page.query_selector_all(selector)
+                for container in containers:
+                    if await container.is_visible():
+                        text = (await container.text_content() or "").lower()
+                        
+                        # 1. Must have a test reference
+                        if "#" not in text and "test_cycle" not in text:
+                            continue
+                            
+                        # 2. Skip archived/informational notifications
+                        if any(w in text for w in ["archived", "payout", "achievement", "score"]):
+                            continue
+                            
+                        # 3. Must be recent (within 5 mins)
+                        is_recent = any(re.search(pattern, text) for pattern in recent_patterns)
+                        if not is_recent:
+                            continue
+                            
+                        # It's a valid recent invitation! Find the clickable link.
+                        link = await container.query_selector('a[href*="test_cycle"]')
+                        if not link:
+                            link = await container.query_selector('a')
+                            
+                        if link:
+                            found_tests.append(link)
+                        else:
+                            found_tests.append(container) # fallback to container
+                            
                 if found_tests:
-                    logger.info(f"⚡ Found {len(found_tests)} test(s) in dropdown via {selector}")
+                    logger.info(f"⚡ Found {len(found_tests)} recent test(s) in dropdown via {selector}")
                     return found_tests
-            except Exception:
+            except Exception as e:
                 continue
         await page.wait_for_timeout(250)
         
-    logger.warning("⏳ No tests found in notification dropdown.")
+    logger.warning("⏳ No valid recent test invitations found in notification dropdown.")
     
     # Try to close the dropdown
     try:
