@@ -306,8 +306,9 @@ class TestIOBot:
                                 continue
                             else:
                                 try:
+                                    screenshot_path = await capture(self._page, f"phase1_attempt_{attempt}")
                                     from ..notifications.telegram import notify_accept_attempt
-                                    await notify_accept_attempt(phase, attempt, max_attempts, "No tests found in dropdown", None, self.config)
+                                    await notify_accept_attempt(phase, attempt, max_attempts, "No tests found in dropdown", str(screenshot_path) if screenshot_path else None, self.config)
                                 except Exception: pass
                                 await asyncio.sleep(3)
                                 continue
@@ -333,16 +334,18 @@ class TestIOBot:
                             
                             if is_email_triggered and attempt < max_phase2:
                                 try:
+                                    screenshot_path = await capture(self._page, f"phase2_attempt_{attempt}")
                                     from ..notifications.telegram import notify_accept_attempt
-                                    await notify_accept_attempt(phase, attempt, max_attempts, "No tests visible on dashboard yet", None, self.config)
+                                    await notify_accept_attempt(phase, attempt, max_attempts, "No tests visible on dashboard yet", str(screenshot_path) if screenshot_path else None, self.config)
                                 except Exception: pass
                                 await asyncio.sleep(5)
                                 continue
                             else:
                                 if is_email_triggered and attempt >= max_phase2:
                                     try:
+                                        screenshot_path = await capture(self._page, f"phase2_failed")
                                         from ..notifications.telegram import notify_accept_final
-                                        await notify_accept_final(False, "Unknown", attempt, "No tests appeared after all attempts", None, self.config)
+                                        await notify_accept_final(False, "Unknown", attempt, "No tests appeared after all attempts", str(screenshot_path) if screenshot_path else None, self.config)
                                     except Exception: pass
                                 break
 
