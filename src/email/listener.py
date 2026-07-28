@@ -174,53 +174,52 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
 
     for msg_id in sorted(msg_ids, key=lambda x: int(x)):
         try:
-            # Fetch headers AND a body preview (first 2KB) for accurate filtering
-            fetch_response = await client.fetch(
-                msg_id, '(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID DATE)] BODY.PEEK[TEXT]<0.2048>)'
-            )
+            # Fetch the ENTIRE message to ensure we can parse the HTML link
+            fetch_response = await client.fetch(msg_id, '(RFC822.PEEK)')
             if fetch_response.result != 'OK':
                 logger.warning(f"Fetch failed for msg {msg_id}: {fetch_response.result}")
                 continue
 
             # Parse all raw response lines
-            raw_text = ""
+            raw_email_bytes = b""
             for line in fetch_response.lines:
                 if isinstance(line, (bytes, bytearray)):
-                    raw_text += line.decode('utf-8', errors='ignore') + "\n"
-                elif isinstance(line, str):
-                    raw_text += line + "\n"
+                    raw_email_bytes += line + b"\r\n"
 
-            import re
-            from email.header import decode_header
-
-            def _dec(text):
-                if not text:
-                    return ""
-                try:
-                    parts = decode_header(text)
-                    res = ""
-                    for p, enc in parts:
-                        if isinstance(p, bytes):
-                            res += p.decode(enc or 'utf-8', errors='ignore')
-                        else:
-                            res += p
-                    return res
-                except Exception:
-                    return text
-
-            from_match = re.search(r'(?i)From:\s*([^\r\n]+)', raw_text)
-            subj_match = re.search(r'(?i)Subject:\s*([^\r\n]+)', raw_text)
-            mid_match = re.search(r'(?i)Message-ID:\s*([^\r\n]+)', raw_text)
-            date_match = re.search(r'(?i)Date:\s*([^\r\n]+)', raw_text)
-
-            from_addr = _dec(from_match.group(1).strip()) if from_match else ""
-            subject = _dec(subj_match.group(1).strip()) if subj_match else ""
-            msg_id_hdr = _dec(mid_match.group(1).strip()) if mid_match else ""
-            date_hdr = _dec(date_match.group(1).strip()) if date_match else ""
+            import email
+            from email import policy
+            msg = email.message_from_bytes(raw_email_bytes, policy=policy.default)
             
-            # Extract body preview (everything after the header block)
-            body_preview = raw_text  # The full raw text includes the body preview
+            from_addr = msg.get("From", "")
+            subject = msg.get("Subject", "")
+            msg_id_hdr = msg.get("Message-ID", "")
+            date_hdr = msg.get("Date", "")
             
+            # Extract plain text and HTML
+            plain_content = ""
+            html_content = ""
+            if msg.is_multipart():
+                for part in msg.walk():
+                    ctype = part.get_content_type()
+                    if ctype == "text/plain":
+                        try:
+                            plain_content = part.get_content()
+                        except Exception: pass
+                    elif ctype == "text/html":
+                        try:
+                            html_content = part.get_content()
+                        except Exception: pass
+            else:
+                ctype = msg.get_content_type()
+                if ctype == "text/html":
+                    try: html_content = msg.get_content()
+                    except Exception: pass
+                else:
+                    try: plain_content = msg.get_content()
+                    except Exception: pass
+
+            body_preview = (plain_content + " " + html_content)[:2048]
+
             # Generate a unique fingerprint for this email
             if msg_id_hdr:
                 fingerprint = msg_id_hdr
@@ -236,22 +235,39 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
                     logger.info(f"  ℹ️ Email {fingerprint} already processed. Skipping to avoid reload loop.")
                     continue
                     
-                # Extract direct URL if possible
+                # Extract the exact link from the email
                 test_url = None
                 
-                # First try to find a raw URL in the email text
-                url_match = re.search(r'(https://tester\.test\.io/test_cycles/\d+)', raw_text)
-                if url_match:
-                    test_url = url_match.group(1)
-                    logger.info(f"🔗 Found direct test URL in email: {test_url}")
-                else:
-                    # Fallback: look for the test ID (e.g. #151010) and construct the URL
-                    id_match = re.search(r'#(\d{5,7})', raw_text)
+                # Look for the specific link from the button/text in the HTML
+                import re
+                
+                # Find all links in HTML
+                links = re.findall(r'href=[\'"]?([^\'" >]+)', html_content)
+                
+                # Priority 1: A link that contains the word "test_cycles"
+                for link in links:
+                    if "test_cycles" in link:
+                        test_url = link
+                        logger.info(f"🔗 Found exact test cycle link in HTML: {test_url}")
+                        break
+                        
+                # Priority 2: If we couldn't find "test_cycles", maybe the tracking URL is obfuscated
+                if not test_url:
+                    # Often "Click this link for more details." is wrapped in an anchor.
+                    # We can look for the href immediately preceding that text.
+                    click_match = re.search(r'href=[\'"]?([^\'" >]+)[^>]*>[^<]*Click this link for more details', html_content, re.IGNORECASE)
+                    if click_match:
+                        test_url = click_match.group(1)
+                        logger.info(f"🔗 Found obfuscated tracking link for 'Click this link...': {test_url}")
+                        
+                # Priority 3: Fallback to reconstructing from ID just in case
+                if not test_url:
+                    id_match = re.search(r'#(\d{5,7})', plain_content + html_content)
                     if id_match:
                         test_url = f"https://tester.test.io/test_cycles/{id_match.group(1)}"
                         logger.info(f"🔗 Reconstructed test URL from ID: {test_url}")
                     else:
-                        logger.warning("⚠️ Could not extract Test URL or ID from email body!")
+                        logger.warning("⚠️ Could not extract exact link or ID from email body!")
                     
                 invitations_found += 1
                 logger.info(f"🚨 NEW TEST INVITATION DETECTED!")
