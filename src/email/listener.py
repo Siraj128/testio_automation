@@ -175,18 +175,17 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
     for msg_id in sorted(msg_ids, key=lambda x: int(x)):
         try:
             # Fetch the ENTIRE message to ensure we can parse the HTML link
-            # We use BODY.PEEK[] instead of RFC822.PEEK because RFC822.PEEK is not valid IMAP syntax
-            fetch_response = await client.fetch(msg_id, '(BODY.PEEK[])')
+            # Fetch headers and body separately to avoid aioimaplib parsing bugs
+            fetch_response = await client.fetch(msg_id, '(BODY.PEEK[HEADER] BODY.PEEK[TEXT])')
             if fetch_response.result != 'OK':
                 logger.warning(f"Fetch failed for msg {msg_id}: {fetch_response.result}")
                 continue
 
-            # Parse the raw response to extract the email literal
+            # Parse all raw response lines
             raw_email_bytes = b""
             for line in fetch_response.lines:
-                if isinstance(line, tuple):
-                    raw_email_bytes = line[1]
-                    break
+                if isinstance(line, (bytes, bytearray)):
+                    raw_email_bytes += line + b"\r\n"
 
             import email
             from email import policy
