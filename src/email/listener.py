@@ -181,11 +181,12 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
                 logger.warning(f"Fetch failed for msg {msg_id}: {fetch_response.result}")
                 continue
 
-            # Parse all raw response lines
+            # Parse the raw response to extract the email literal
             raw_email_bytes = b""
             for line in fetch_response.lines:
-                if isinstance(line, (bytes, bytearray)):
-                    raw_email_bytes += line + b"\r\n"
+                if isinstance(line, tuple):
+                    raw_email_bytes = line[1]
+                    break
 
             import email
             from email import policy
