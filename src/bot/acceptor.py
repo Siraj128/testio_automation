@@ -212,7 +212,8 @@ async def accept_test(page: Page, test_element=None, dry_run: bool = False, test
             error = "Could not find the 'Accept and take seat' button"
             logger.error(f"❌ {error}")
             result["error"] = error
-            await capture(page, "accept_button_not_found", result["test_id"])
+            screenshot_path = await capture(page, "accept_button_not_found", result["test_id"])
+            result["screenshot_path"] = str(screenshot_path) if screenshot_path else None
             return result
 
         # ⚡ CLICK — INSTANT, NO DELAY
@@ -281,7 +282,8 @@ async def accept_test(page: Page, test_element=None, dry_run: bool = False, test
                     else:
                         logger.error(f"❌ Acceptance failed: {error_text}")
                     
-                    await capture(page, "accept_failed", result["test_id"])
+                    screenshot_path = await capture(page, "accept_failed", result["test_id"])
+                    result["screenshot_path"] = str(screenshot_path) if screenshot_path else None
                     return result
             except Exception:
                 continue
@@ -309,5 +311,6 @@ async def accept_test(page: Page, test_element=None, dry_run: bool = False, test
         error_msg = f"Acceptance flow error: {e}"
         logger.error(f"❌ {error_msg}")
         result["error"] = error_msg
-        await capture(page, "accept_exception", result.get("test_id", ""))
+        screenshot_path = await capture(page, "accept_exception", result.get("test_id", ""))
+        result["screenshot_path"] = str(screenshot_path) if screenshot_path else None
         return result
