@@ -238,10 +238,20 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
                     
                 # Extract direct URL if possible
                 test_url = None
+                
+                # First try to find a raw URL in the email text
                 url_match = re.search(r'(https://tester\.test\.io/test_cycles/\d+)', raw_text)
                 if url_match:
                     test_url = url_match.group(1)
                     logger.info(f"🔗 Found direct test URL in email: {test_url}")
+                else:
+                    # Fallback: look for the test ID (e.g. #151010) and construct the URL
+                    id_match = re.search(r'#(\d{5,7})', raw_text)
+                    if id_match:
+                        test_url = f"https://tester.test.io/test_cycles/{id_match.group(1)}"
+                        logger.info(f"🔗 Reconstructed test URL from ID: {test_url}")
+                    else:
+                        logger.warning("⚠️ Could not extract Test URL or ID from email body!")
                     
                 invitations_found += 1
                 logger.info(f"🚨 NEW TEST INVITATION DETECTED!")
