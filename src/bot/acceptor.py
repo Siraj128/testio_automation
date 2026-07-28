@@ -55,7 +55,8 @@ async def accept_test(page: Page, test_element, dry_run: bool = False) -> dict:
             result["test_name"] = "Unknown Test"
 
         # Click the test card to navigate to the overview page
-        await test_element.click()
+        # Use force=True to bypass sticky banners (like "Update devices") intercepting the click
+        await test_element.click(force=True)
         try:
             # Short wait for navigation, but don't block if it's an SPA transition
             await page.wait_for_load_state("domcontentloaded", timeout=2000)

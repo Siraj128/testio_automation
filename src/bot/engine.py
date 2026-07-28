@@ -403,15 +403,25 @@ class TestIOBot:
                                 except Exception: pass
                                 # Don't break, continue loop
                             else:
-                                self.status.set_state(BotState.FAILED, error_msg)
-                                await increment_failed()
-                                try:
-                                    from ..notifications.telegram import notify_accept_final
-                                    await notify_accept_final(False, result["test_name"], attempt, error_msg, result.get("screenshot_path"), self.config)
-                                except Exception: pass
-                                is_email_triggered = False
-                                break
-
+                                if phase == "Notification Phase":
+                                    logger.info("Phase 1 exhausted (failed to accept). Switching to Dashboard Phase.")
+                                    try:
+                                        from ..notifications.telegram import notify_accept_attempt
+                                        await notify_accept_attempt(phase, attempt, max_attempts, f"{error_msg} — Switching to Dashboard", result.get("screenshot_path"), self.config)
+                                    except Exception: pass
+                                    phase = "Dashboard Phase"
+                                    attempt = 0
+                                    max_attempts = max_phase2
+                                    break # break out of `for invitation` loop to retry the `while True` loop
+                                else:
+                                    self.status.set_state(BotState.FAILED, error_msg)
+                                    await increment_failed()
+                                    try:
+                                        from ..notifications.telegram import notify_accept_final
+                                        await notify_accept_final(False, result["test_name"], attempt, error_msg, result.get("screenshot_path"), self.config)
+                                    except Exception: pass
+                                    is_email_triggered = False
+                                    break
                         # Navigate back to dashboard to retry
                         await self._page.goto(self.dashboard_url, wait_until="domcontentloaded", timeout=15000)
                         await asyncio.sleep(5)
