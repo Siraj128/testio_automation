@@ -186,9 +186,8 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
             body_bytes = b""
             for line in fetch_response.lines:
                 if isinstance(line, (bytes, bytearray)):
-                    # A naive but effective way to tell if it's the header block:
-                    # Headers usually start with standard email headers like Return-Path, Delivered-To, Received, Date, etc.
-                    # Or at least contain 'Subject:' and 'From:' near the top.
+                    if len(line) < 10:  # Skip IMAP tokens like b')'
+                        continue
                     line_lower = line[:500].lower()
                     if b"delivered-to:" in line_lower or b"received:" in line_lower or b"from:" in line_lower or b"subject:" in line_lower:
                         headers_bytes = bytes(line)

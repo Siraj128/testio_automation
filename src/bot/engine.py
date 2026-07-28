@@ -580,11 +580,10 @@ class TestIOBot:
 
     def trigger_instant_reload(self, target_url: str = None) -> None:
         """Interrupt the current delay and force an immediate dashboard refresh."""
-        if not self._instant_reload_event.is_set():
-            logger.info("⚡ Instant reload triggered by external event!")
-            self._email_triggered = True  # Signal the retry loop
-            self._target_test_url = target_url  # Store direct URL for Phase 0
-            self._instant_reload_event.set()
+        logger.info("⚡ Instant reload triggered by external event!")
+        self._email_triggered = True  # Signal the retry loop
+        self._target_test_url = target_url  # Store direct URL for Phase 0
+        self._instant_reload_event.set()
 
     def set_poll_speed(self, min_sec: int, max_sec: int, overdrive: bool = False) -> None:
         """Dynamically adjust the polling interval in memory."""
