@@ -236,6 +236,13 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
                     logger.info(f"  ℹ️ Email {fingerprint} already processed. Skipping to avoid reload loop.")
                     continue
                     
+                # Extract direct URL if possible
+                test_url = None
+                url_match = re.search(r'(https://tester\.test\.io/test_cycles/\d+)', raw_text)
+                if url_match:
+                    test_url = url_match.group(1)
+                    logger.info(f"🔗 Found direct test URL in email: {test_url}")
+                    
                 invitations_found += 1
                 logger.info(f"🚨 NEW TEST INVITATION DETECTED!")
                 logger.info(f"   From: {from_addr}")
@@ -251,7 +258,7 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
                 
                 # Mark it as processed in our local database BEFORE triggering callback
                 await stats.mark_email_processed(fingerprint)
-                trigger_callback()
+                trigger_callback(test_url)
             else:
                 logger.info(f"  ℹ️ Non-invitation email, skipping: {subject[:60]}")
 

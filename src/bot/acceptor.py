@@ -13,11 +13,11 @@ from ..intercept.replay import fast_accept_test
 logger = logging.getLogger(__name__)
 
 
-async def accept_test(page: Page, test_element, dry_run: bool = False) -> dict:
+async def accept_test(page: Page, test_element=None, dry_run: bool = False, test_url: str = None) -> dict:
     """Execute the full acceptance flow for a single test invitation.
 
     Flow:
-    1. Click the test card to open the overview page
+    1. Click the test card to open the overview page (or navigate directly)
     2. Scroll to the "Join this Test" section
     3. Check the checkbox ("I have read all instructions...")
     4. Click "Accept and take seat"
@@ -30,6 +30,7 @@ async def accept_test(page: Page, test_element, dry_run: bool = False) -> dict:
         page: The current Playwright page.
         test_element: The locator/element for the test card on the dashboard.
         dry_run: If True, detect but don't click accept.
+        test_url: The direct URL to navigate to (skips click phase)
 
     Returns:
         Dict with keys: success, test_name, test_id, screenshot_path, error
@@ -46,33 +47,44 @@ async def accept_test(page: Page, test_element, dry_run: bool = False) -> dict:
 
     try:
         # --- Step 1: Extract test info and click into it ---
-        try:
-            test_name = await test_element.text_content() or "Unknown Test"
-            test_name = test_name.strip()[:100]  # Truncate for sanity
-            result["test_name"] = test_name
-            logger.info(f"🎯 Found test: {test_name}")
-        except Exception:
-            result["test_name"] = "Unknown Test"
+        if test_url:
+            # We have a direct URL (Phase 0)
+            try:
+                result["test_id"] = test_url.rstrip("/").split("/")[-1]
+                result["test_name"] = f"Test #{result['test_id']}"
+                logger.info(f"🎯 Direct navigation to test: {test_url}")
+            except Exception:
+                result["test_name"] = "Unknown Test"
+            
+            await page.goto(test_url, wait_until="domcontentloaded", timeout=15000)
+        else:
+            try:
+                test_name = await test_element.text_content() or "Unknown Test"
+                test_name = test_name.strip()[:100]  # Truncate for sanity
+                result["test_name"] = test_name
+                logger.info(f"🎯 Found test: {test_name}")
+            except Exception:
+                result["test_name"] = "Unknown Test"
 
-        # Click the test card to navigate to the overview page
-        # Use force=True to bypass sticky banners (like "Update devices") intercepting the click
-        await test_element.click(force=True)
-        try:
-            # Short wait for navigation, but don't block if it's an SPA transition
-            await page.wait_for_load_state("domcontentloaded", timeout=2000)
-        except Exception:
-            pass
+            # Click the test card to navigate to the overview page
+            # Use force=True to bypass sticky banners (like "Update devices") intercepting the click
+            await test_element.click(force=True)
+            try:
+                # Short wait for navigation, but don't block if it's an SPA transition
+                await page.wait_for_load_state("domcontentloaded", timeout=2000)
+            except Exception:
+                pass
 
-        # Try to extract test ID from URL
-        current_url = page.url
-        # URLs typically like: app.test.io/tester/test_cycles/12345
-        url_parts = current_url.rstrip("/").split("/")
-        for part in reversed(url_parts):
-            if part.isdigit():
-                result["test_id"] = part
-                break
+            # Try to extract test ID from URL
+            current_url = page.url
+            # URLs typically like: app.test.io/tester/test_cycles/12345
+            url_parts = current_url.rstrip("/").split("/")
+            for part in reversed(url_parts):
+                if part.isdigit():
+                    result["test_id"] = part
+                    break
 
-        logger.info(f"Test overview loaded: {current_url}")
+        logger.info(f"Test overview loaded: {page.url}")
         await capture(page, "test_overview", result["test_id"])
 
         # ⚡ PHASE 3: Attempt API Fast-Accept first

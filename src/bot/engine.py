@@ -261,12 +261,19 @@ class TestIOBot:
             try:
                 # Capture whether this iteration was triggered by email
                 is_email_triggered = self._email_triggered
-                self._email_triggered = False  # Reset immediately
+                target_test_url = getattr(self, "_target_test_url", None)
                 
+                self._email_triggered = False  # Reset immediately
+                self._target_test_url = None
+                
+                max_phase0 = 3
                 max_phase1 = 3
                 max_phase2 = 10
                 
-                if is_email_triggered:
+                if target_test_url:
+                    phase = "Direct URL Phase"
+                    max_attempts = max_phase0
+                elif is_email_triggered:
                     phase = "Notification Phase"
                     max_attempts = max_phase1
                 else:
@@ -280,7 +287,12 @@ class TestIOBot:
                     
                     self.status.set_state(BotState.CHECKING)
                     
-                    if phase == "Notification Phase":
+                    if phase == "Direct URL Phase":
+                        # Fast path 0: Navigate directly to test URL
+                        logger.info(f"Phase 0: Navigating directly to {target_test_url}")
+                        invitations = [{"url": target_test_url}] # Dummy list so the loop proceeds
+                        
+                    elif phase == "Notification Phase":
                         # Fast path: Check notifications dropdown
                         invitations = await check_notifications_dropdown(self._page, self.config)
                         if not invitations:
@@ -354,7 +366,10 @@ class TestIOBot:
                         self.status.set_state(BotState.FOUND_TEST)
 
                         try:
-                            test_name_preview = (await invitation.text_content() or "Unknown").strip()[:100]
+                            if isinstance(invitation, dict) and "url" in invitation:
+                                test_name_preview = f"Direct Link: {invitation['url'].split('/')[-1]}"
+                            else:
+                                test_name_preview = (await invitation.text_content() or "Unknown").strip()[:100]
                             from ..notifications.telegram import notify_test_spotted
                             await notify_test_spotted(test_name_preview, self.config)
                         except Exception:
@@ -362,10 +377,18 @@ class TestIOBot:
 
                         self.status.set_state(BotState.ACCEPTING)
 
+                        test_element = None
+                        test_url = None
+                        if isinstance(invitation, dict) and "url" in invitation:
+                            test_url = invitation["url"]
+                        else:
+                            test_element = invitation
+
                         result = await accept_test(
                             self._page,
-                            invitation,
+                            test_element=test_element,
                             dry_run=self.is_dry_run,
+                            test_url=test_url
                         )
 
                         if result["success"]:
@@ -380,6 +403,7 @@ class TestIOBot:
                             except Exception: pass
                             
                             is_email_triggered = False
+                            target_test_url = None
                             break
 
                         else:
@@ -394,16 +418,29 @@ class TestIOBot:
                                     await notify_accept_final(False, result["test_name"], attempt, error_msg, result.get("screenshot_path"), self.config)
                                 except Exception: pass
                                 is_email_triggered = False
+                                target_test_url = None
                                 break
                             
-                            elif is_email_triggered and attempt < max_attempts:
+                            elif (is_email_triggered or target_test_url) and attempt < max_attempts:
                                 try:
                                     from ..notifications.telegram import notify_accept_attempt
                                     await notify_accept_attempt(phase, attempt, max_attempts, error_msg, result.get("screenshot_path"), self.config)
                                 except Exception: pass
                                 # Don't break, continue loop
                             else:
-                                if phase == "Notification Phase":
+                                if phase == "Direct URL Phase":
+                                    logger.info("Phase 0 exhausted. Switching to Notification Phase.")
+                                    try:
+                                        from ..notifications.telegram import notify_accept_attempt
+                                        await notify_accept_attempt(phase, attempt, max_attempts, f"{error_msg} — Switching to Notification Phase", result.get("screenshot_path"), self.config)
+                                    except Exception: pass
+                                    phase = "Notification Phase"
+                                    attempt = 0
+                                    max_attempts = max_phase1
+                                    # We navigate to dashboard so Notification Phase can trigger the bell
+                                    await self._page.goto(self.dashboard_url, wait_until="domcontentloaded", timeout=15000)
+                                    break
+                                elif phase == "Notification Phase":
                                     logger.info("Phase 1 exhausted (failed to accept). Switching to Dashboard Phase.")
                                     try:
                                         from ..notifications.telegram import notify_accept_attempt
@@ -541,11 +578,12 @@ class TestIOBot:
         for p in pending:
             p.cancel()
 
-    def trigger_instant_reload(self) -> None:
+    def trigger_instant_reload(self, target_url: str = None) -> None:
         """Interrupt the current delay and force an immediate dashboard refresh."""
         if not self._instant_reload_event.is_set():
             logger.info("⚡ Instant reload triggered by external event!")
             self._email_triggered = True  # Signal the retry loop
+            self._target_test_url = target_url  # Store direct URL for Phase 0
             self._instant_reload_event.set()
 
     def set_poll_speed(self, min_sec: int, max_sec: int, overdrive: bool = False) -> None:
