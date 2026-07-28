@@ -181,11 +181,22 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
                 logger.warning(f"Fetch failed for msg {msg_id}: {fetch_response.result}")
                 continue
 
-            # Parse all raw response lines
-            raw_email_bytes = b""
+            # Parse all raw response lines (IMAP servers can return HEADER and TEXT in any order)
+            headers_bytes = b""
+            body_bytes = b""
             for line in fetch_response.lines:
                 if isinstance(line, (bytes, bytearray)):
-                    raw_email_bytes += line + b"\r\n"
+                    # A naive but effective way to tell if it's the header block:
+                    # Headers usually start with standard email headers like Return-Path, Delivered-To, Received, Date, etc.
+                    # Or at least contain 'Subject:' and 'From:' near the top.
+                    line_lower = line[:500].lower()
+                    if b"delivered-to:" in line_lower or b"received:" in line_lower or b"from:" in line_lower or b"subject:" in line_lower:
+                        headers_bytes = bytes(line)
+                    else:
+                        body_bytes = bytes(line)
+            
+            # Reconstruct the full email payload correctly (Headers first, then double newline, then body)
+            raw_email_bytes = headers_bytes + b"\r\n\r\n" + body_bytes
 
             import email
             from email import policy
