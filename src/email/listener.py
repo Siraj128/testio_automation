@@ -175,7 +175,8 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
     for msg_id in sorted(msg_ids, key=lambda x: int(x)):
         try:
             # Fetch the ENTIRE message to ensure we can parse the HTML link
-            fetch_response = await client.fetch(msg_id, '(RFC822.PEEK)')
+            # We use BODY.PEEK[] instead of RFC822.PEEK because RFC822.PEEK is not valid IMAP syntax
+            fetch_response = await client.fetch(msg_id, '(BODY.PEEK[])')
             if fetch_response.result != 'OK':
                 logger.warning(f"Fetch failed for msg {msg_id}: {fetch_response.result}")
                 continue
