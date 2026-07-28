@@ -185,18 +185,16 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
             headers_bytes = b""
             body_bytes = b""
             for line in fetch_response.lines:
-                if isinstance(line, (bytes, bytearray)):
-                    # A naive but effective way to tell if it's the header block:
-                    # Headers usually start with standard email headers like Return-Path, Delivered-To, Received, Date, etc.
-                    # Or at least contain 'Subject:' and 'From:' near the top.
-                    line_lower = line[:500].lower()
+                # aioimaplib returns IMAP string literals as bytearray, and IMAP tags/metadata as bytes
+                if isinstance(line, bytearray):
+                    line_lower = bytes(line[:500]).lower()
                     if b"delivered-to:" in line_lower or b"received:" in line_lower or b"from:" in line_lower or b"subject:" in line_lower:
                         headers_bytes = bytes(line)
                     else:
                         body_bytes = bytes(line)
             
-            # Reconstruct the full email payload correctly (Headers first, then double newline, then body)
-            raw_email_bytes = headers_bytes + b"\r\n\r\n" + body_bytes
+            # Reconstruct the full email payload correctly
+            raw_email_bytes = headers_bytes.strip() + b"\r\n\r\n" + body_bytes.lstrip()
 
             import email
             from email import policy
