@@ -175,27 +175,14 @@ async def _process_new_emails(client, config: dict, trigger_callback) -> int:
     for msg_id in sorted(msg_ids, key=lambda x: int(x)):
         try:
             # Fetch the ENTIRE message to ensure we can parse the HTML link
-            # Fetch headers and body separately to avoid aioimaplib parsing bugs
-            fetch_response = await client.fetch(msg_id, '(BODY.PEEK[HEADER] BODY.PEEK[TEXT])')
+            # Fetch the ENTIRE message cleanly
+            fetch_response = await client.fetch(msg_id, '(BODY.PEEK[])')
             if fetch_response.result != 'OK':
                 logger.warning(f"Fetch failed for msg {msg_id}: {fetch_response.result}")
                 continue
 
-            # Parse all raw response lines (IMAP servers can return HEADER and TEXT in any order)
-            headers_bytes = b""
-            body_bytes = b""
-            for line in fetch_response.lines:
-                if isinstance(line, (bytes, bytearray)):
-                    if len(line) < 10:  # Skip IMAP tokens like b')'
-                        continue
-                    line_lower = line[:500].lower()
-                    if b"delivered-to:" in line_lower or b"received:" in line_lower or b"from:" in line_lower or b"subject:" in line_lower:
-                        headers_bytes = bytes(line)
-                    else:
-                        body_bytes = bytes(line)
-            
-            # Reconstruct the full email payload correctly (Headers first, then double newline, then body)
-            raw_email_bytes = headers_bytes + b"\r\n\r\n" + body_bytes
+            # Combine bytearrays, ignoring IMAP framing
+            raw_email_bytes = b"".join(line for line in fetch_response.lines if isinstance(line, (bytes, bytearray)) and b"BODY[" not in line and b"FETCH" not in line and b"Success" not in line and b")" != line.strip())
 
             import email
             from email import policy
