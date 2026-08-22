@@ -1,0 +1,482 @@
+<!DOCTYPE html><html class="no-js" lang="en"><head><style type="text/css">.turbo-progress-bar {
+  position: fixed;
+  display: block;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: #0076ff;
+  z-index: 9999;
+  transition:
+    width 300ms ease-out,
+    opacity 150ms 150ms ease-in;
+  transform: translate3d(0, 0, 0);
+}
+</style>
+<!-- Google tag (gtag.js) -->
+<script type="text/javascript" async="" src="https://widget.intercom.io/widget/f57e2c25e3a656194a16f4469ef89a83a414caf0"></script><script type="text/javascript" src="https://cdn.segment.com/next-integrations/integrations/vendor/commons.59560acdd69ed701c941.js.gz" async="" status="loaded"></script><script type="text/javascript" src="https://cdn.segment.com/next-integrations/integrations/intercom/3.1.1/intercom.dynamic.js.gz" async="" status="loaded"></script><script type="text/javascript" async="" src="https://cdn.segment.com/analytics.js/v1/cGwNMNuupmBlmnfRxkshhwPmHVFAsxHo/analytics.min.js"></script><script async="" src="https://cdn.branch.io/branch-latest.min.js"></script><script async="" nonce="" src="https://www.googletagmanager.com/gtag/js?id=G-KCWDJYQB2R"></script>
+<script nonce="">
+//<![CDATA[
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', "G-KCWDJYQB2R");
+
+
+//]]>
+</script>
+<meta charset="utf-8">
+<title>Dashboard | test IO</title>
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style">
+<meta content="user-scalable=no, initial-scale=1.0, width=device-width" name="viewport">
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,600,700">
+<link rel="stylesheet" href="https://cdn.test.io/vite/assets/halo-CAKdY0o-.css">
+<link rel="icon" type="image/x-icon" href="https://cdn.test.io/assets/favicon-blue-0ad05c2427e5da01d38a104295bc63975fbf6b0907bcdbd9ee006833a675a2fa.ico">
+<meta name="csrf-param" content="authenticity_token">
+<meta name="csrf-token" content="pxNGlZtA-aZEOFhPtfuwPdcRcjKABC5sbYMEaD-6sBO4vZrYjy1AZnSx5rfb50WK3CZ35uwIcZHWYhqWNzzlow">
+<meta name="csp-nonce" content="Q3Hierv0TWpEBrdz7gqjUA==">
+
+<script src="https://cdn.test.io/vite/assets/application-CbKvgSGD.js" crossorigin="anonymous" type="module" nonce=""></script>
+<script nonce="">
+//<![CDATA[
+(function(b,r,a,n,c,h,_,s,d,k){if(!b[n]||!b[n]._q){for(;s<_.length;)c(h,_[s++]);d=r.createElement(a);d.async=1;d.src="https://cdn.branch.io/branch-latest.min.js";k=r.getElementsByTagName(a)[0];k.parentNode.insertBefore(d,k);b[n]=h}})(window,document,"script","branch",function(b,r){b[r]=function(){b._q.push([r,arguments])}},{_q:[],_v:1},"addListener applyCode autoAppIndex banner closeBanner closeJourney creditHistory credits data deepview deepviewCta first getCode init link logout redeem referrals removeListener sendSMS setBranchViewData setIdentity track validateCode trackCommerceEvent logEvent disableTracking".split(" "), 0);
+
+//]]>
+</script>
+<style type="text/css">/* Chart.js */
+/*
+ * DOM element rendering detection
+ * https://davidwalsh.name/detect-node-insertion
+ */
+@keyframes chartjs-render-animation {
+	from { opacity: 0.99; }
+	to { opacity: 1; }
+}
+
+.chartjs-render-monitor {
+	animation: chartjs-render-animation 0.001s;
+}
+
+/*
+ * DOM element resizing detection
+ * https://github.com/marcj/css-element-queries
+ */
+.chartjs-size-monitor,
+.chartjs-size-monitor-expand,
+.chartjs-size-monitor-shrink {
+	position: absolute;
+	direction: ltr;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	pointer-events: none;
+	visibility: hidden;
+	z-index: -1;
+}
+
+.chartjs-size-monitor-expand > div {
+	position: absolute;
+	width: 1000000px;
+	height: 1000000px;
+	left: 0;
+	top: 0;
+}
+
+.chartjs-size-monitor-shrink > div {
+	position: absolute;
+	width: 200%;
+	height: 200%;
+	left: 0;
+	top: 0;
+}
+</style><style>:root{--swal2-outline: 0 0 0 3px rgba(100, 150, 200, 0.5);--swal2-container-padding: 0.625em;--swal2-backdrop: rgba(0, 0, 0, 0.4);--swal2-backdrop-transition: background-color 0.1s;--swal2-width: 32em;--swal2-padding: 0 0 1.25em;--swal2-border: none;--swal2-border-radius: 0.3125rem;--swal2-background: white;--swal2-color: #545454;--swal2-show-animation: swal2-show 0.3s;--swal2-hide-animation: swal2-hide 0.15s forwards;--swal2-icon-zoom: 1;--swal2-icon-animations: true;--swal2-title-padding: 0.8em 1em 0;--swal2-html-container-padding: 1em 1.6em 0.3em;--swal2-input-border: 1px solid #d9d9d9;--swal2-input-border-radius: 0.1875em;--swal2-input-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.06), 0 0 0 3px transparent;--swal2-input-background: transparent;--swal2-input-transition: border-color 0.2s, box-shadow 0.2s;--swal2-input-hover-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.06), 0 0 0 3px transparent;--swal2-input-focus-border: 1px solid #b4dbed;--swal2-input-focus-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.06), 0 0 0 3px $swal2-outline-color;--swal2-progress-step-background: #add8e6;--swal2-validation-message-background: #f0f0f0;--swal2-validation-message-color: #666;--swal2-footer-border-color: #eee;--swal2-footer-background: transparent;--swal2-footer-color: inherit;--swal2-timer-progress-bar-background: rgba(0, 0, 0, 0.3);--swal2-close-button-position: initial;--swal2-close-button-inset: auto;--swal2-close-button-font-size: 2.5em;--swal2-close-button-color: #ccc;--swal2-close-button-transition: color 0.2s, box-shadow 0.2s;--swal2-close-button-outline: initial;--swal2-close-button-box-shadow: inset 0 0 0 3px transparent;--swal2-close-button-focus-box-shadow: inset var(--swal2-outline);--swal2-close-button-hover-transform: none;--swal2-actions-justify-content: center;--swal2-actions-width: auto;--swal2-actions-margin: 1.25em auto 0;--swal2-actions-padding: 0;--swal2-actions-border-radius: 0;--swal2-actions-background: transparent;--swal2-action-button-transition: background-color 0.2s, box-shadow 0.2s;--swal2-action-button-hover: black 10%;--swal2-action-button-active: black 10%;--swal2-confirm-button-box-shadow: none;--swal2-confirm-button-border-radius: 0.25em;--swal2-confirm-button-background-color: #7066e0;--swal2-confirm-button-color: #fff;--swal2-deny-button-box-shadow: none;--swal2-deny-button-border-radius: 0.25em;--swal2-deny-button-background-color: #dc3741;--swal2-deny-button-color: #fff;--swal2-cancel-button-box-shadow: none;--swal2-cancel-button-border-radius: 0.25em;--swal2-cancel-button-background-color: #6e7881;--swal2-cancel-button-color: #fff;--swal2-toast-show-animation: swal2-toast-show 0.5s;--swal2-toast-hide-animation: swal2-toast-hide 0.1s forwards;--swal2-toast-border: none;--swal2-toast-box-shadow: 0 0 1px hsl(0deg 0% 0% / 0.075), 0 1px 2px hsl(0deg 0% 0% / 0.075), 1px 2px 4px hsl(0deg 0% 0% / 0.075), 1px 3px 8px hsl(0deg 0% 0% / 0.075), 2px 4px 16px hsl(0deg 0% 0% / 0.075)}[data-swal2-theme=dark]{--swal2-dark-theme-black: #19191a;--swal2-dark-theme-white: #e1e1e1;--swal2-background: var(--swal2-dark-theme-black);--swal2-color: var(--swal2-dark-theme-white);--swal2-footer-border-color: #555;--swal2-input-background: color-mix(in srgb, var(--swal2-dark-theme-black), var(--swal2-dark-theme-white) 10%);--swal2-validation-message-background: color-mix( in srgb, var(--swal2-dark-theme-black), var(--swal2-dark-theme-white) 10% );--swal2-validation-message-color: var(--swal2-dark-theme-white);--swal2-timer-progress-bar-background: rgba(255, 255, 255, 0.7)}@media(prefers-color-scheme: dark){[data-swal2-theme=auto]{--swal2-dark-theme-black: #19191a;--swal2-dark-theme-white: #e1e1e1;--swal2-background: var(--swal2-dark-theme-black);--swal2-color: var(--swal2-dark-theme-white);--swal2-footer-border-color: #555;--swal2-input-background: color-mix(in srgb, var(--swal2-dark-theme-black), var(--swal2-dark-theme-white) 10%);--swal2-validation-message-background: color-mix( in srgb, var(--swal2-dark-theme-black), var(--swal2-dark-theme-white) 10% );--swal2-validation-message-color: var(--swal2-dark-theme-white);--swal2-timer-progress-bar-background: rgba(255, 255, 255, 0.7)}}body.swal2-shown:not(.swal2-no-backdrop,.swal2-toast-shown){overflow:hidden}body.swal2-height-auto{height:auto !important}body.swal2-no-backdrop .swal2-container{background-color:rgba(0,0,0,0) !important;pointer-events:none}body.swal2-no-backdrop .swal2-container .swal2-popup{pointer-events:all}body.swal2-no-backdrop .swal2-container .swal2-modal{box-shadow:0 0 10px var(--swal2-backdrop)}body.swal2-toast-shown .swal2-container{box-sizing:border-box;width:360px;max-width:100%;background-color:rgba(0,0,0,0);pointer-events:none}body.swal2-toast-shown .swal2-container.swal2-top{inset:0 auto auto 50%;transform:translateX(-50%)}body.swal2-toast-shown .swal2-container.swal2-top-end,body.swal2-toast-shown .swal2-container.swal2-top-right{inset:0 0 auto auto}body.swal2-toast-shown .swal2-container.swal2-top-start,body.swal2-toast-shown .swal2-container.swal2-top-left{inset:0 auto auto 0}body.swal2-toast-shown .swal2-container.swal2-center-start,body.swal2-toast-shown .swal2-container.swal2-center-left{inset:50% auto auto 0;transform:translateY(-50%)}body.swal2-toast-shown .swal2-container.swal2-center{inset:50% auto auto 50%;transform:translate(-50%, -50%)}body.swal2-toast-shown .swal2-container.swal2-center-end,body.swal2-toast-shown .swal2-container.swal2-center-right{inset:50% 0 auto auto;transform:translateY(-50%)}body.swal2-toast-shown .swal2-container.swal2-bottom-start,body.swal2-toast-shown .swal2-container.swal2-bottom-left{inset:auto auto 0 0}body.swal2-toast-shown .swal2-container.swal2-bottom{inset:auto auto 0 50%;transform:translateX(-50%)}body.swal2-toast-shown .swal2-container.swal2-bottom-end,body.swal2-toast-shown .swal2-container.swal2-bottom-right{inset:auto 0 0 auto}@media print{body.swal2-shown:not(.swal2-no-backdrop,.swal2-toast-shown){overflow-y:scroll !important}body.swal2-shown:not(.swal2-no-backdrop,.swal2-toast-shown)>[aria-hidden=true]{display:none}body.swal2-shown:not(.swal2-no-backdrop,.swal2-toast-shown) .swal2-container{position:static !important}}div:where(.swal2-container){display:grid;position:fixed;z-index:1060;inset:0;box-sizing:border-box;grid-template-areas:"top-start     top            top-end" "center-start  center         center-end" "bottom-start  bottom-center  bottom-end";grid-template-rows:minmax(min-content, auto) minmax(min-content, auto) minmax(min-content, auto);height:100%;padding:var(--swal2-container-padding);overflow-x:hidden;transition:var(--swal2-backdrop-transition);-webkit-overflow-scrolling:touch}div:where(.swal2-container).swal2-backdrop-show,div:where(.swal2-container).swal2-noanimation{background:var(--swal2-backdrop)}div:where(.swal2-container).swal2-backdrop-hide{background:rgba(0,0,0,0) !important}div:where(.swal2-container).swal2-top-start,div:where(.swal2-container).swal2-center-start,div:where(.swal2-container).swal2-bottom-start{grid-template-columns:minmax(0, 1fr) auto auto}div:where(.swal2-container).swal2-top,div:where(.swal2-container).swal2-center,div:where(.swal2-container).swal2-bottom{grid-template-columns:auto minmax(0, 1fr) auto}div:where(.swal2-container).swal2-top-end,div:where(.swal2-container).swal2-center-end,div:where(.swal2-container).swal2-bottom-end{grid-template-columns:auto auto minmax(0, 1fr)}div:where(.swal2-container).swal2-top-start>.swal2-popup{align-self:start}div:where(.swal2-container).swal2-top>.swal2-popup{grid-column:2;place-self:start center}div:where(.swal2-container).swal2-top-end>.swal2-popup,div:where(.swal2-container).swal2-top-right>.swal2-popup{grid-column:3;place-self:start end}div:where(.swal2-container).swal2-center-start>.swal2-popup,div:where(.swal2-container).swal2-center-left>.swal2-popup{grid-row:2;align-self:center}div:where(.swal2-container).swal2-center>.swal2-popup{grid-column:2;grid-row:2;place-self:center center}div:where(.swal2-container).swal2-center-end>.swal2-popup,div:where(.swal2-container).swal2-center-right>.swal2-popup{grid-column:3;grid-row:2;place-self:center end}div:where(.swal2-container).swal2-bottom-start>.swal2-popup,div:where(.swal2-container).swal2-bottom-left>.swal2-popup{grid-column:1;grid-row:3;align-self:end}div:where(.swal2-container).swal2-bottom>.swal2-popup{grid-column:2;grid-row:3;place-self:end center}div:where(.swal2-container).swal2-bottom-end>.swal2-popup,div:where(.swal2-container).swal2-bottom-right>.swal2-popup{grid-column:3;grid-row:3;place-self:end end}div:where(.swal2-container).swal2-grow-row>.swal2-popup,div:where(.swal2-container).swal2-grow-fullscreen>.swal2-popup{grid-column:1/4;width:100%}div:where(.swal2-container).swal2-grow-column>.swal2-popup,div:where(.swal2-container).swal2-grow-fullscreen>.swal2-popup{grid-row:1/4;align-self:stretch}div:where(.swal2-container).swal2-no-transition{transition:none !important}div:where(.swal2-container)[popover]{width:auto;border:0}div:where(.swal2-container) div:where(.swal2-popup){display:none;position:relative;box-sizing:border-box;grid-template-columns:minmax(0, 100%);width:var(--swal2-width);max-width:100%;padding:var(--swal2-padding);border:var(--swal2-border);border-radius:var(--swal2-border-radius);background:var(--swal2-background);color:var(--swal2-color);font-family:inherit;font-size:1rem;container-name:swal2-popup}div:where(.swal2-container) div:where(.swal2-popup):focus{outline:none}div:where(.swal2-container) div:where(.swal2-popup).swal2-loading{overflow-y:hidden}div:where(.swal2-container) div:where(.swal2-popup).swal2-draggable{cursor:grab}div:where(.swal2-container) div:where(.swal2-popup).swal2-draggable div:where(.swal2-icon){cursor:grab}div:where(.swal2-container) div:where(.swal2-popup).swal2-dragging{cursor:grabbing}div:where(.swal2-container) div:where(.swal2-popup).swal2-dragging div:where(.swal2-icon){cursor:grabbing}div:where(.swal2-container) h2:where(.swal2-title){position:relative;max-width:100%;margin:0;padding:var(--swal2-title-padding);color:inherit;font-size:1.875em;font-weight:600;text-align:center;text-transform:none;overflow-wrap:break-word;cursor:initial}div:where(.swal2-container) div:where(.swal2-actions){display:flex;z-index:1;box-sizing:border-box;flex-wrap:wrap;align-items:center;justify-content:var(--swal2-actions-justify-content);width:var(--swal2-actions-width);margin:var(--swal2-actions-margin);padding:var(--swal2-actions-padding);border-radius:var(--swal2-actions-border-radius);background:var(--swal2-actions-background)}div:where(.swal2-container) div:where(.swal2-loader){display:none;align-items:center;justify-content:center;width:2.2em;height:2.2em;margin:0 1.875em;animation:swal2-rotate-loading 1.5s linear 0s infinite normal;border-width:.25em;border-style:solid;border-radius:100%;border-color:#2778c4 rgba(0,0,0,0) #2778c4 rgba(0,0,0,0)}div:where(.swal2-container) button:where(.swal2-styled){margin:.3125em;padding:.625em 1.1em;transition:var(--swal2-action-button-transition);border:none;box-shadow:0 0 0 3px rgba(0,0,0,0);font-weight:500}div:where(.swal2-container) button:where(.swal2-styled):not([disabled]){cursor:pointer}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-confirm){border-radius:var(--swal2-confirm-button-border-radius);background:initial;background-color:var(--swal2-confirm-button-background-color);box-shadow:var(--swal2-confirm-button-box-shadow);color:var(--swal2-confirm-button-color);font-size:1em}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-confirm):hover{background-color:color-mix(in srgb, var(--swal2-confirm-button-background-color), var(--swal2-action-button-hover))}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-confirm):active{background-color:color-mix(in srgb, var(--swal2-confirm-button-background-color), var(--swal2-action-button-active))}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-deny){border-radius:var(--swal2-deny-button-border-radius);background:initial;background-color:var(--swal2-deny-button-background-color);box-shadow:var(--swal2-deny-button-box-shadow);color:var(--swal2-deny-button-color);font-size:1em}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-deny):hover{background-color:color-mix(in srgb, var(--swal2-deny-button-background-color), var(--swal2-action-button-hover))}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-deny):active{background-color:color-mix(in srgb, var(--swal2-deny-button-background-color), var(--swal2-action-button-active))}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-cancel){border-radius:var(--swal2-cancel-button-border-radius);background:initial;background-color:var(--swal2-cancel-button-background-color);box-shadow:var(--swal2-cancel-button-box-shadow);color:var(--swal2-cancel-button-color);font-size:1em}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-cancel):hover{background-color:color-mix(in srgb, var(--swal2-cancel-button-background-color), var(--swal2-action-button-hover))}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-cancel):active{background-color:color-mix(in srgb, var(--swal2-cancel-button-background-color), var(--swal2-action-button-active))}div:where(.swal2-container) button:where(.swal2-styled):focus-visible{outline:none;box-shadow:var(--swal2-action-button-focus-box-shadow)}div:where(.swal2-container) button:where(.swal2-styled)[disabled]:not(.swal2-loading){opacity:.4}div:where(.swal2-container) button:where(.swal2-styled)::-moz-focus-inner{border:0}div:where(.swal2-container) div:where(.swal2-footer){margin:1em 0 0;padding:1em 1em 0;border-top:1px solid var(--swal2-footer-border-color);background:var(--swal2-footer-background);color:var(--swal2-footer-color);font-size:1em;text-align:center;cursor:initial}div:where(.swal2-container) .swal2-timer-progress-bar-container{position:absolute;right:0;bottom:0;left:0;grid-column:auto !important;overflow:hidden;border-bottom-right-radius:var(--swal2-border-radius);border-bottom-left-radius:var(--swal2-border-radius)}div:where(.swal2-container) div:where(.swal2-timer-progress-bar){width:100%;height:.25em;background:var(--swal2-timer-progress-bar-background)}div:where(.swal2-container) img:where(.swal2-image){max-width:100%;margin:2em auto 1em;cursor:initial}div:where(.swal2-container) button:where(.swal2-close){position:var(--swal2-close-button-position);inset:var(--swal2-close-button-inset);z-index:2;align-items:center;justify-content:center;width:1.2em;height:1.2em;margin-top:0;margin-right:0;margin-bottom:-1.2em;padding:0;overflow:hidden;transition:var(--swal2-close-button-transition);border:none;border-radius:var(--swal2-border-radius);outline:var(--swal2-close-button-outline);background:rgba(0,0,0,0);color:var(--swal2-close-button-color);font-family:monospace;font-size:var(--swal2-close-button-font-size);cursor:pointer;justify-self:end}div:where(.swal2-container) button:where(.swal2-close):hover{transform:var(--swal2-close-button-hover-transform);background:rgba(0,0,0,0);color:#f27474}div:where(.swal2-container) button:where(.swal2-close):focus-visible{outline:none;box-shadow:var(--swal2-close-button-focus-box-shadow)}div:where(.swal2-container) button:where(.swal2-close)::-moz-focus-inner{border:0}div:where(.swal2-container) div:where(.swal2-html-container){z-index:1;justify-content:center;margin:0;padding:var(--swal2-html-container-padding);overflow:auto;color:inherit;font-size:1.125em;font-weight:normal;line-height:normal;text-align:center;overflow-wrap:break-word;word-break:break-word;cursor:initial}div:where(.swal2-container) input:where(.swal2-input),div:where(.swal2-container) input:where(.swal2-file),div:where(.swal2-container) textarea:where(.swal2-textarea),div:where(.swal2-container) select:where(.swal2-select),div:where(.swal2-container) div:where(.swal2-radio),div:where(.swal2-container) label:where(.swal2-checkbox){margin:1em 2em 3px}div:where(.swal2-container) input:where(.swal2-input),div:where(.swal2-container) input:where(.swal2-file),div:where(.swal2-container) textarea:where(.swal2-textarea){box-sizing:border-box;width:auto;transition:var(--swal2-input-transition);border:var(--swal2-input-border);border-radius:var(--swal2-input-border-radius);background:var(--swal2-input-background);box-shadow:var(--swal2-input-box-shadow);color:inherit;font-size:1.125em}div:where(.swal2-container) input:where(.swal2-input).swal2-inputerror,div:where(.swal2-container) input:where(.swal2-file).swal2-inputerror,div:where(.swal2-container) textarea:where(.swal2-textarea).swal2-inputerror{border-color:#f27474 !important;box-shadow:0 0 2px #f27474 !important}div:where(.swal2-container) input:where(.swal2-input):hover,div:where(.swal2-container) input:where(.swal2-file):hover,div:where(.swal2-container) textarea:where(.swal2-textarea):hover{box-shadow:var(--swal2-input-hover-box-shadow)}div:where(.swal2-container) input:where(.swal2-input):focus,div:where(.swal2-container) input:where(.swal2-file):focus,div:where(.swal2-container) textarea:where(.swal2-textarea):focus{border:var(--swal2-input-focus-border);outline:none;box-shadow:var(--swal2-input-focus-box-shadow)}div:where(.swal2-container) input:where(.swal2-input)::placeholder,div:where(.swal2-container) input:where(.swal2-file)::placeholder,div:where(.swal2-container) textarea:where(.swal2-textarea)::placeholder{color:#ccc}div:where(.swal2-container) .swal2-range{margin:1em 2em 3px;background:var(--swal2-background)}div:where(.swal2-container) .swal2-range input{width:80%}div:where(.swal2-container) .swal2-range output{width:20%;color:inherit;font-weight:600;text-align:center}div:where(.swal2-container) .swal2-range input,div:where(.swal2-container) .swal2-range output{height:2.625em;padding:0;font-size:1.125em;line-height:2.625em}div:where(.swal2-container) .swal2-input{height:2.625em;padding:0 .75em}div:where(.swal2-container) .swal2-file{width:75%;margin-right:auto;margin-left:auto;background:var(--swal2-input-background);font-size:1.125em}div:where(.swal2-container) .swal2-textarea{height:6.75em;padding:.75em}div:where(.swal2-container) .swal2-select{min-width:50%;max-width:100%;padding:.375em .625em;background:var(--swal2-input-background);color:inherit;font-size:1.125em}div:where(.swal2-container) .swal2-radio,div:where(.swal2-container) .swal2-checkbox{align-items:center;justify-content:center;background:var(--swal2-background);color:inherit}div:where(.swal2-container) .swal2-radio label,div:where(.swal2-container) .swal2-checkbox label{margin:0 .6em;font-size:1.125em}div:where(.swal2-container) .swal2-radio input,div:where(.swal2-container) .swal2-checkbox input{flex-shrink:0;margin:0 .4em}div:where(.swal2-container) label:where(.swal2-input-label){display:flex;justify-content:center;margin:1em auto 0}div:where(.swal2-container) div:where(.swal2-validation-message){align-items:center;justify-content:center;margin:1em 0 0;padding:.625em;overflow:hidden;background:var(--swal2-validation-message-background);color:var(--swal2-validation-message-color);font-size:1em;font-weight:300}div:where(.swal2-container) div:where(.swal2-validation-message)::before{content:"!";display:inline-block;width:1.5em;min-width:1.5em;height:1.5em;margin:0 .625em;border-radius:50%;background-color:#f27474;color:#fff;font-weight:600;line-height:1.5em;text-align:center}div:where(.swal2-container) .swal2-progress-steps{flex-wrap:wrap;align-items:center;max-width:100%;margin:1.25em auto;padding:0;background:rgba(0,0,0,0);font-weight:600}div:where(.swal2-container) .swal2-progress-steps li{display:inline-block;position:relative}div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step{z-index:20;flex-shrink:0;width:2em;height:2em;border-radius:2em;background:#2778c4;color:#fff;line-height:2em;text-align:center}div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step.swal2-active-progress-step{background:#2778c4}div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step.swal2-active-progress-step~.swal2-progress-step{background:var(--swal2-progress-step-background);color:#fff}div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step.swal2-active-progress-step~.swal2-progress-step-line{background:var(--swal2-progress-step-background)}div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step-line{z-index:10;flex-shrink:0;width:2.5em;height:.4em;margin:0 -1px;background:#2778c4}div:where(.swal2-icon){position:relative;box-sizing:content-box;justify-content:center;width:5em;height:5em;margin:2.5em auto .6em;zoom:var(--swal2-icon-zoom);border:.25em solid rgba(0,0,0,0);border-radius:50%;border-color:#000;font-family:inherit;line-height:5em;cursor:default;user-select:none}div:where(.swal2-icon) .swal2-icon-content{display:flex;align-items:center;font-size:3.75em}div:where(.swal2-icon).swal2-error{border-color:#f27474;color:#f27474}div:where(.swal2-icon).swal2-error .swal2-x-mark{position:relative;flex-grow:1}div:where(.swal2-icon).swal2-error [class^=swal2-x-mark-line]{display:block;position:absolute;top:2.3125em;width:2.9375em;height:.3125em;border-radius:.125em;background-color:#f27474}div:where(.swal2-icon).swal2-error [class^=swal2-x-mark-line][class$=left]{left:1.0625em;transform:rotate(45deg)}div:where(.swal2-icon).swal2-error [class^=swal2-x-mark-line][class$=right]{right:1em;transform:rotate(-45deg)}@container swal2-popup style(--swal2-icon-animations:true){div:where(.swal2-icon).swal2-error.swal2-icon-show{animation:swal2-animate-error-icon .5s}div:where(.swal2-icon).swal2-error.swal2-icon-show .swal2-x-mark{animation:swal2-animate-error-x-mark .5s}}div:where(.swal2-icon).swal2-warning{border-color:#f8bb86;color:#f8bb86}@container swal2-popup style(--swal2-icon-animations:true){div:where(.swal2-icon).swal2-warning.swal2-icon-show{animation:swal2-animate-error-icon .5s}div:where(.swal2-icon).swal2-warning.swal2-icon-show .swal2-icon-content{animation:swal2-animate-i-mark .5s}}div:where(.swal2-icon).swal2-info{border-color:#3fc3ee;color:#3fc3ee}@container swal2-popup style(--swal2-icon-animations:true){div:where(.swal2-icon).swal2-info.swal2-icon-show{animation:swal2-animate-error-icon .5s}div:where(.swal2-icon).swal2-info.swal2-icon-show .swal2-icon-content{animation:swal2-animate-i-mark .8s}}div:where(.swal2-icon).swal2-question{border-color:#87adbd;color:#87adbd}@container swal2-popup style(--swal2-icon-animations:true){div:where(.swal2-icon).swal2-question.swal2-icon-show{animation:swal2-animate-error-icon .5s}div:where(.swal2-icon).swal2-question.swal2-icon-show .swal2-icon-content{animation:swal2-animate-question-mark .8s}}div:where(.swal2-icon).swal2-success{border-color:#a5dc86;color:#a5dc86}div:where(.swal2-icon).swal2-success [class^=swal2-success-circular-line]{position:absolute;width:3.75em;height:7.5em;border-radius:50%}div:where(.swal2-icon).swal2-success [class^=swal2-success-circular-line][class$=left]{top:-0.4375em;left:-2.0635em;transform:rotate(-45deg);transform-origin:3.75em 3.75em;border-radius:7.5em 0 0 7.5em}div:where(.swal2-icon).swal2-success [class^=swal2-success-circular-line][class$=right]{top:-0.6875em;left:1.875em;transform:rotate(-45deg);transform-origin:0 3.75em;border-radius:0 7.5em 7.5em 0}div:where(.swal2-icon).swal2-success .swal2-success-ring{position:absolute;z-index:2;top:-0.25em;left:-0.25em;box-sizing:content-box;width:100%;height:100%;border:.25em solid rgba(165,220,134,.3);border-radius:50%}div:where(.swal2-icon).swal2-success .swal2-success-fix{position:absolute;z-index:1;top:.5em;left:1.625em;width:.4375em;height:5.625em;transform:rotate(-45deg)}div:where(.swal2-icon).swal2-success [class^=swal2-success-line]{display:block;position:absolute;z-index:2;height:.3125em;border-radius:.125em;background-color:#a5dc86}div:where(.swal2-icon).swal2-success [class^=swal2-success-line][class$=tip]{top:2.875em;left:.8125em;width:1.5625em;transform:rotate(45deg)}div:where(.swal2-icon).swal2-success [class^=swal2-success-line][class$=long]{top:2.375em;right:.5em;width:2.9375em;transform:rotate(-45deg)}@container swal2-popup style(--swal2-icon-animations:true){div:where(.swal2-icon).swal2-success.swal2-icon-show .swal2-success-line-tip{animation:swal2-animate-success-line-tip .75s}div:where(.swal2-icon).swal2-success.swal2-icon-show .swal2-success-line-long{animation:swal2-animate-success-line-long .75s}div:where(.swal2-icon).swal2-success.swal2-icon-show .swal2-success-circular-line-right{animation:swal2-rotate-success-circular-line 4.25s ease-in}}[class^=swal2]{-webkit-tap-highlight-color:rgba(0,0,0,0)}.swal2-show{animation:var(--swal2-show-animation)}.swal2-hide{animation:var(--swal2-hide-animation)}.swal2-noanimation{transition:none}.swal2-scrollbar-measure{position:absolute;top:-9999px;width:50px;height:50px;overflow:scroll}.swal2-rtl .swal2-close{margin-right:initial;margin-left:0}.swal2-rtl .swal2-timer-progress-bar{right:0;left:auto}.swal2-toast{box-sizing:border-box;grid-column:1/4 !important;grid-row:1/4 !important;grid-template-columns:min-content auto min-content;padding:1em;overflow-y:hidden;border:var(--swal2-toast-border);background:var(--swal2-background);box-shadow:var(--swal2-toast-box-shadow);pointer-events:all}.swal2-toast>*{grid-column:2}.swal2-toast h2:where(.swal2-title){margin:.5em 1em;padding:0;font-size:1em;text-align:initial}.swal2-toast .swal2-loading{justify-content:center}.swal2-toast input:where(.swal2-input){height:2em;margin:.5em;font-size:1em}.swal2-toast .swal2-validation-message{font-size:1em}.swal2-toast div:where(.swal2-footer){margin:.5em 0 0;padding:.5em 0 0;font-size:.8em}.swal2-toast button:where(.swal2-close){grid-column:3/3;grid-row:1/99;align-self:center;width:.8em;height:.8em;margin:0;font-size:2em}.swal2-toast div:where(.swal2-html-container){margin:.5em 1em;padding:0;overflow:initial;font-size:1em;text-align:initial}.swal2-toast div:where(.swal2-html-container):empty{padding:0}.swal2-toast .swal2-loader{grid-column:1;grid-row:1/99;align-self:center;width:2em;height:2em;margin:.25em}.swal2-toast .swal2-icon{grid-column:1;grid-row:1/99;align-self:center;width:2em;min-width:2em;height:2em;margin:0 .5em 0 0}.swal2-toast .swal2-icon .swal2-icon-content{display:flex;align-items:center;font-size:1.8em;font-weight:bold}.swal2-toast .swal2-icon.swal2-success .swal2-success-ring{width:2em;height:2em}.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line]{top:.875em;width:1.375em}.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line][class$=left]{left:.3125em}.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line][class$=right]{right:.3125em}.swal2-toast div:where(.swal2-actions){justify-content:flex-start;height:auto;margin:0;margin-top:.5em;padding:0 .5em}.swal2-toast button:where(.swal2-styled){margin:.25em .5em;padding:.4em .6em;font-size:1em}.swal2-toast .swal2-success{border-color:#a5dc86}.swal2-toast .swal2-success [class^=swal2-success-circular-line]{position:absolute;width:1.6em;height:3em;border-radius:50%}.swal2-toast .swal2-success [class^=swal2-success-circular-line][class$=left]{top:-0.8em;left:-0.5em;transform:rotate(-45deg);transform-origin:2em 2em;border-radius:4em 0 0 4em}.swal2-toast .swal2-success [class^=swal2-success-circular-line][class$=right]{top:-0.25em;left:.9375em;transform-origin:0 1.5em;border-radius:0 4em 4em 0}.swal2-toast .swal2-success .swal2-success-ring{width:2em;height:2em}.swal2-toast .swal2-success .swal2-success-fix{top:0;left:.4375em;width:.4375em;height:2.6875em}.swal2-toast .swal2-success [class^=swal2-success-line]{height:.3125em}.swal2-toast .swal2-success [class^=swal2-success-line][class$=tip]{top:1.125em;left:.1875em;width:.75em}.swal2-toast .swal2-success [class^=swal2-success-line][class$=long]{top:.9375em;right:.1875em;width:1.375em}@container swal2-popup style(--swal2-icon-animations:true){.swal2-toast .swal2-success.swal2-icon-show .swal2-success-line-tip{animation:swal2-toast-animate-success-line-tip .75s}.swal2-toast .swal2-success.swal2-icon-show .swal2-success-line-long{animation:swal2-toast-animate-success-line-long .75s}}.swal2-toast.swal2-show{animation:var(--swal2-toast-show-animation)}.swal2-toast.swal2-hide{animation:var(--swal2-toast-hide-animation)}@keyframes swal2-show{0%{transform:scale(0.7)}45%{transform:scale(1.05)}80%{transform:scale(0.95)}100%{transform:scale(1)}}@keyframes swal2-hide{0%{transform:scale(1);opacity:1}100%{transform:scale(0.5);opacity:0}}@keyframes swal2-animate-success-line-tip{0%{top:1.1875em;left:.0625em;width:0}54%{top:1.0625em;left:.125em;width:0}70%{top:2.1875em;left:-0.375em;width:3.125em}84%{top:3em;left:1.3125em;width:1.0625em}100%{top:2.8125em;left:.8125em;width:1.5625em}}@keyframes swal2-animate-success-line-long{0%{top:3.375em;right:2.875em;width:0}65%{top:3.375em;right:2.875em;width:0}84%{top:2.1875em;right:0;width:3.4375em}100%{top:2.375em;right:.5em;width:2.9375em}}@keyframes swal2-rotate-success-circular-line{0%{transform:rotate(-45deg)}5%{transform:rotate(-45deg)}12%{transform:rotate(-405deg)}100%{transform:rotate(-405deg)}}@keyframes swal2-animate-error-x-mark{0%{margin-top:1.625em;transform:scale(0.4);opacity:0}50%{margin-top:1.625em;transform:scale(0.4);opacity:0}80%{margin-top:-0.375em;transform:scale(1.15)}100%{margin-top:0;transform:scale(1);opacity:1}}@keyframes swal2-animate-error-icon{0%{transform:rotateX(100deg);opacity:0}100%{transform:rotateX(0deg);opacity:1}}@keyframes swal2-rotate-loading{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes swal2-animate-question-mark{0%{transform:rotateY(-360deg)}100%{transform:rotateY(0)}}@keyframes swal2-animate-i-mark{0%{transform:rotateZ(45deg);opacity:0}25%{transform:rotateZ(-25deg);opacity:.4}50%{transform:rotateZ(15deg);opacity:.8}75%{transform:rotateZ(-5deg);opacity:1}100%{transform:rotateX(0);opacity:1}}@keyframes swal2-toast-show{0%{transform:translateY(-0.625em) rotateZ(2deg)}33%{transform:translateY(0) rotateZ(-2deg)}66%{transform:translateY(0.3125em) rotateZ(2deg)}100%{transform:translateY(0) rotateZ(0deg)}}@keyframes swal2-toast-hide{100%{transform:rotateZ(1deg);opacity:0}}@keyframes swal2-toast-animate-success-line-tip{0%{top:.5625em;left:.0625em;width:0}54%{top:.125em;left:.125em;width:0}70%{top:.625em;left:-0.25em;width:1.625em}84%{top:1.0625em;left:.75em;width:.5em}100%{top:1.125em;left:.1875em;width:.75em}}@keyframes swal2-toast-animate-success-line-long{0%{top:1.625em;right:1.375em;width:0}65%{top:1.25em;right:.9375em;width:0}84%{top:.9375em;right:0;width:1.125em}100%{top:.9375em;right:.1875em;width:1.375em}}</style></head>
+<body class="app-body home index app-ready asset-precompilation-testing">
+<div data-react-class="PusherListener" data-react-props="{&quot;channel&quot;:&quot;private-tester_1255153&quot;}" data-react-cache-id="PusherListener-0"><div data-reactroot="" class="pusher-listener"></div></div>
+<nav class="header tester" id="top-nav-bar">
+<div class="navlinks logo-wrapper">
+<a class="navlink header-logo" href="/"></a>
+</div>
+<div class="navlinks left">
+<a class="navlink responsive-label " href="https://tester.test.io/profile"><span class="icon icon icon-user-profile mr-icon-spacing"></span> Your profile</a>
+<a class="navlink responsive-label " href="/tester_activity_dashboard/activity_summary"><span class="icon icon icon-activity mr-icon-spacing"></span> Activities</a>
+<a class="navlink responsive-label " href="/account/devices"><span class="icon icon icon-devices mr-icon-spacing"></span> Your Devices</a>
+<a class="navlink testio-nav-item responsive-label " href="/bills"><span class="icon icon icon-billing mr-icon-spacing"></span> Billing</a>
+<a class="navlink testio-nav-item responsive-label " href="/academy"><span class="icon icon icon-academy mr-icon-spacing"></span> Learn</a>
+</div>
+<details class="mobile-links">
+<summary class="mobile-menu-btn">
+<div class="navlink">
+<span class="sr-only">Open main menu</span>
+<span ariahidden="true" class="icon icon-menu"></span>
+</div>
+</summary>
+<div class="mobile-menu sidebar tester" style="z-index: 1011">
+<div class="profilepicture-wrapper" id="tester-picture">
+<details class="profilepicture-actions hidden-xs-down">
+<summary>
+<img alt="Tester level medal" class="testerlevel-medal" src="https://cdn.test.io/assets/testerlevel-medals/medal_testerlevel_1_md-2aeb24818c67b2c2874b95f01b487d86c003a6d6adade4a51d61614535e5f473.png">
+<img alt="Profile picture" class="profilepicture" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/user/avatar/1301867/sidebar_hero_photo_1.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113708Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=545ee57c64b58d2fbdb698cc3ba7c42ff7b84abe110de6bc14f6f15d92460871">
+<div class="avatar-overlay"></div>
+<div class="badges-container d-flex">
+</div>
+</summary>
+<div class="popover-menu">
+<a class="popover-action avatar-upload-trigger avatar-upload-box" data-filesize="10mb" data-url="/account/avatar" id="avatar-upload-trigger-mobile-menu" style="z-index: 1;">
+<span class="icon text-icon-default icon-cloud-upload mr-icon-spacing"></span>
+Upload picture
+</a>
+<a class="popover-action avatar-remove-trigger" data-url="/account/remove_avatar">
+<span class="icon text-icon-default icon-remove mr-icon-spacing"></span>
+Remove picture
+</a>
+<div id="html5_1ju4pr1aln4on2nnm6cl0bua4_container" class="moxie-shim moxie-shim-html5" style="position: absolute; top: 0px; left: 0px; width: 0px; height: 0px; overflow: hidden; z-index: 0;"><input id="html5_1ju4pr1aln4on2nnm6cl0bua4" type="file" style="font-size: 999px; opacity: 0; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;" multiple="" accept="" tabindex="-1"></div></div>
+</details>
+</div>
+<div class="sidebar-title" data-action="click-&gt;hello#click" data-controller="hello" data-placement="bottom" data-toggle="tooltip" id="tester-screenname-mobile-menu" title="" data-hello-click-count-value="0" data-original-title="Siraj khan">Siraj khan</div>
+<div class="title-badges d-flex">
+</div>
+<div class="navlinks">
+<a class="navlink active" href="/"><span>
+<div class="icon-wrapper">
+<div class="icon icon-home"></div>
+</div>
+</span>
+Dashboard
+</a><a class="navlink " href="/tester_rankings?type=level"><span>
+<div class="icon-wrapper">
+<div class="icon icon-ranking"></div>
+</div>
+</span>
+Ranking
+</a><div data-react-class="SidebarAvailableTasks" data-react-props="{&quot;current_controller&quot;:&quot;home&quot;,&quot;current_activity&quot;:null,&quot;bug_reproduction_path&quot;:null}" data-react-cache-id="SidebarAvailableTasks-0"><a data-reactroot="" href="/available_tasks" class="navlink "><div class="icon-wrapper"><span class="icon icon-review-bug"></span></div><div class="text-wrapper"><div class="div">Available tasks</div><!-- react-empty: 6 --></div></a></div>
+<div data-react-class="SidebarTestCycleContainer" data-react-props="{&quot;currentController&quot;:&quot;home&quot;,&quot;testCycles&quot;:[],&quot;tester&quot;:{&quot;id&quot;:1255153,&quot;created_at&quot;:&quot;2026-06-14T00:59:41.000+05:30&quot;,&quot;updated_at&quot;:&quot;2026-06-26T11:31:30.000+05:30&quot;,&quot;screenname&quot;:&quot;Siraj khan&quot;,&quot;status&quot;:&quot;approved&quot;,&quot;greenhorn&quot;:true,&quot;approved_at&quot;:&quot;2026-06-17T12:35:42.000+05:30&quot;,&quot;active&quot;:true,&quot;profile_thumb_license&quot;:false,&quot;deleted_at&quot;:null,&quot;onetime_signin_token&quot;:null,&quot;banned_at&quot;:null,&quot;signed_up_at&quot;:&quot;2026-06-14T00:59:41.000+05:30&quot;,&quot;campaign&quot;:null,&quot;referred_by&quot;:null,&quot;customer_id&quot;:null,&quot;banned_from_bug_dispute&quot;:false,&quot;slug&quot;:&quot;siraj_khan&quot;,&quot;available&quot;:true,&quot;private_crowd&quot;:false,&quot;banned_from_user_stories&quot;:false,&quot;course_onboarding_reproduction_passed&quot;:true,&quot;course_onboarding_workshop_passed&quot;:true,&quot;course_onboarding_user_story_passed&quot;:true,&quot;mobile_cloud&quot;:false,&quot;worker_id&quot;:6838623,&quot;course_confirmations_passed&quot;:true,&quot;course_onboarding_purchase_functionalities_passed&quot;:true,&quot;course_project_testing_passed&quot;:true,&quot;course_hardware_testing_passed&quot;:true,&quot;course_streaming_testing_passed&quot;:true,&quot;display_welcome_banner&quot;:false,&quot;course_cybersecurity_passed&quot;:true,&quot;course_real_payments_testing_passed&quot;:false,&quot;tag_list&quot;:[&quot;Onboarded for Cybersecurity&quot;,&quot;Onboarded for Streaming Testing&quot;]},&quot;currentTcId&quot;:null,&quot;pastTestCyclesCount&quot;:1,&quot;currentTestCycleIsPast&quot;:false,&quot;isCopperTester&quot;:true,&quot;totalSlotsCount&quot;:2}" data-react-cache-id="SidebarTestCycleContainer-0"><div data-reactroot="" class="react-sidebar" id="sidebar_tests_list"><div class="sidebar-divider"></div><div><div class="sidebar-label"><!-- react-text: 5 -->0<!-- /react-text --><!-- react-text: 6 --> / <!-- /react-text --><!-- react-text: 7 -->2<!-- /react-text --><!-- react-text: 8 --> <!-- /react-text --><!-- react-text: 9 -->Seats used<!-- /react-text --></div><div class="seatslot">Seat available</div><div class="seatslot">Seat available</div></div><div class="sidebar-divider"></div><details><summary class="navlink pr-0"><span class="icon icon-test-ended mr-0"></span><!-- react-text: 16 --> <!-- /react-text --><!-- react-text: 17 -->Past Test Cycles<!-- /react-text --></summary><div class="display-flex flex-column"></div></details></div></div>
+<a class="navlink " href="/profile"><span class="icon icon-user-profile"></span>
+Your profile
+</a><a class="navlink " rel="nofollow" href="/tester_activity_dashboard/activity_summary"><span class="icon icon-activity"></span>Activities</a>
+<a class="navlink " rel="nofollow" href="/account/devices"><span class="icon icon-devices"></span>Your Devices</a>
+<a class="navlink " rel="nofollow" href="/bills"><span class="icon icon-billing"></span>Billing</a>
+<a class="navlink " rel="nofollow" href="/academy"><span class="icon icon-academy"></span>Learn</a>
+<a class="navlink segment_track_interactive" data-event="tester discord page visited" data-payload="{&quot;source&quot;:&quot;tester&quot;,&quot;account_traits&quot;:{&quot;user_id&quot;:1255153,&quot;firstname&quot;:&quot;Siraj&quot;,&quot;lastname&quot;:&quot;Khan&quot;,&quot;role&quot;:&quot;Tester&quot;,&quot;screenname&quot;:&quot;Siraj khan&quot;,&quot;email&quot;:&quot;ffjbfbbju@gmail.com&quot;,&quot;locale&quot;:&quot;en&quot;,&quot;emails-bounced&quot;:&quot;0&quot;,&quot;last-mailing-error&quot;:&quot;&quot;,&quot;customer_id&quot;:null,&quot;customer_subdomain&quot;:null,&quot;campaign&quot;:null,&quot;status&quot;:&quot;approved&quot;,&quot;active&quot;:true,&quot;level&quot;:&quot;copper&quot;,&quot;quality_score&quot;:null,&quot;reliability_score&quot;:null,&quot;created_at&quot;:&quot;2026-06-14T00:59:41.000+05:30&quot;,&quot;approved_at&quot;:&quot;2026-06-17T12:35:42.000+05:30&quot;},&quot;account_id&quot;:1255153}" rel="nofollow" href="https://discord.gg/FeMrS7XmjF"><span class="icon icon-discord"></span>Discord</a>
+<a class="navlink d-flex " rel="nofollow" href="/account/referrals"><span class="icon icon-speaker"></span>Invite someone</a>
+<div class="sidebar-divider d-block"></div>
+<a class="navlink d-flex " rel="nofollow" href="/account/profile"><span class="icon icon-cog"></span>Settings</a>
+<a class="navlink d-flex" rel="nofollow" data-method="delete" href="/sign_out"><span class="icon icon-shutdown"></span>Sign out</a>
+</div>
+<div class="banner-install-testnow">
+Install testNow
+<a class="icon icon-apple ml-auto" href="https://apps.apple.com/app/apple-store/id1386826134?pt=2014701&amp;ct=left%20navigation%20bar&amp;mt=8"></a>
+<a class="icon icon-android ml-xs" href="https://play.google.com/store/apps/details?id=io.test.android&amp;referrer=utm_source%3Dgoogle%26utm_medium%3Dbanner%26utm_campaign%3Dleft%2520navigation%2520bar%26anid%3Dadmob"></a>
+</div>
+
+</div>
+</details>
+<div class="navlinks right">
+<a class="navlink hidden-sm-down segment_track_interactive" target="_blank" title="" data-toggle="tooltip" data-placement="bottom" data-event="tester discord page visited" data-payload="{&quot;source&quot;:&quot;tester&quot;,&quot;account_traits&quot;:{&quot;user_id&quot;:1255153,&quot;firstname&quot;:&quot;Siraj&quot;,&quot;lastname&quot;:&quot;Khan&quot;,&quot;role&quot;:&quot;Tester&quot;,&quot;screenname&quot;:&quot;Siraj khan&quot;,&quot;email&quot;:&quot;ffjbfbbju@gmail.com&quot;,&quot;locale&quot;:&quot;en&quot;,&quot;emails bounced&quot;:&quot;0&quot;,&quot;last mailing error&quot;:&quot;&quot;,&quot;customer_id&quot;:null,&quot;customer_subdomain&quot;:null,&quot;campaign&quot;:null,&quot;status&quot;:&quot;approved&quot;,&quot;active&quot;:true,&quot;level&quot;:&quot;copper&quot;,&quot;quality_score&quot;:null,&quot;reliability_score&quot;:null,&quot;created_at&quot;:&quot;2026-06-14T00:59:41.000+05:30&quot;,&quot;approved_at&quot;:&quot;2026-06-17T12:35:42.000+05:30&quot;},&quot;account_id&quot;:1255153}" rel="nofollow" data-method="post" href="/discord_redirect" data-original-title="Discord"><span class="icon icon-discord mr-0"></span>
+</a><a class="navlink hidden-xs-down" title="" data-toggle="tooltip" data-placement="bottom" href="/account/referrals" data-original-title="Invite someone &amp; earn money"><span class="icon icon-user-outline-plus mr-0"></span>
+</a><div data-react-class="NotificationCenter" data-react-props="{&quot;liveupdateChannel&quot;:&quot;private-tester_1255153&quot;,&quot;count&quot;:0}" data-react-cache-id="NotificationCenter-0"><details data-reactroot="" class="drawer-wrapper"><summary class="drawer-trigger"><div class="navlink hidden-xs-down"><div class="icon icon-bell mr-icon-spacing"></div><!-- react-text: 5 -->0<!-- /react-text --></div></summary><div class="drawer"><div class="drawer-header align-items-center"><div class="drawer-title mr-2">Notifications</div></div><div class="drawer-content notifications"><div class="align-content-center flex flex-wrap h-100 justify-content-center"><div class="testio-loader-wrapper d-inline-block"><svg viewBox="0 0 50 50" class="testio-loader-i"><line x1="4px" y1="5px" x2="4px" y2="45px" class="anim-bar stroke"></line></svg><div class="testio-loader-o-wrapper"><svg viewBox="25 25 50 50" class="testio-loader-o"><circle cx="50" cy="50" r="20" fill="none" class="anim-circle stroke"></circle></svg></div></div></div></div></div></details></div>
+<details class="header-dropdown user-menu hidden-xs-down">
+<summary class="btn-profile navlink">
+<span class="sr-only">Open user menu</span>
+<img alt="User avatar" class="user-profile" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/user/avatar/1301867/thumb_hero_photo_1.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113708Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=6b355db43cf8ae0467bdea69427a95dc79db0d1b61f54df950a8c784ed74064e">
+<div class="user-details">
+<div class="profile-role">Tester</div>
+<div class="profile-name">Siraj Khan</div>
+</div>
+</summary>
+<div arialabelledby="user-menu" ariaorientation="vertical" class="dropdown-menu profile-dropdown" role="menu">
+<a class="dropdown-link " role="menuitem" href="/account/profile"><span class="icon icon-cog text-icon-default"></span>
+Settings
+</a><a class="dropdown-link" role="menuitem" rel="nofollow" data-method="delete" href="/sign_out"><span class="icon icon-shutdown text-icon-default"></span>
+Sign out
+</a></div>
+</details>
+</div>
+</nav>
+
+<nav class="sidebar tester" id="main-sidebar" style="z-index: 1011">
+<div class="profilepicture-wrapper" id="tester-picture">
+<details class="profilepicture-actions hidden-xs-down">
+<summary>
+<img alt="Tester level medal" class="testerlevel-medal" src="https://cdn.test.io/assets/testerlevel-medals/medal_testerlevel_1_md-2aeb24818c67b2c2874b95f01b487d86c003a6d6adade4a51d61614535e5f473.png">
+<img alt="Profile picture" class="profilepicture" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/user/avatar/1301867/sidebar_hero_photo_1.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113708Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=545ee57c64b58d2fbdb698cc3ba7c42ff7b84abe110de6bc14f6f15d92460871">
+<div class="avatar-overlay"></div>
+<div class="badges-container d-flex">
+</div>
+</summary>
+<div class="popover-menu">
+<a class="popover-action avatar-upload-trigger avatar-upload-box" data-filesize="10mb" data-url="/account/avatar" id="avatar-upload-trigger-main-sidebar" style="z-index: 1;">
+<span class="icon text-icon-default icon-cloud-upload mr-icon-spacing"></span>
+Upload picture
+</a>
+<a class="popover-action avatar-remove-trigger" data-url="/account/remove_avatar">
+<span class="icon text-icon-default icon-remove mr-icon-spacing"></span>
+Remove picture
+</a>
+<div id="html5_1ju4pr1an48t42u1v2n198p1jmi7_container" class="moxie-shim moxie-shim-html5" style="position: absolute; top: 5px; left: 5px; width: 170px; height: 40px; overflow: hidden; z-index: 0;"><input id="html5_1ju4pr1an48t42u1v2n198p1jmi7" type="file" style="font-size: 999px; opacity: 0; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;" multiple="" accept="" tabindex="-1"></div></div>
+</details>
+</div>
+<div class="sidebar-title" data-action="click-&gt;hello#click" data-controller="hello" data-placement="bottom" data-toggle="tooltip" id="tester-screenname-main-sidebar" title="" data-hello-click-count-value="0" data-original-title="Siraj khan">Siraj khan</div>
+<div class="title-badges d-flex">
+</div>
+<div class="navlinks">
+<a class="navlink active" href="/"><span>
+<div class="icon-wrapper">
+<div class="icon icon-home"></div>
+</div>
+</span>
+Dashboard
+</a><a class="navlink " href="/tester_rankings?type=level"><span>
+<div class="icon-wrapper">
+<div class="icon icon-ranking"></div>
+</div>
+</span>
+Ranking
+</a><div data-react-class="SidebarAvailableTasks" data-react-props="{&quot;current_controller&quot;:&quot;home&quot;,&quot;current_activity&quot;:null,&quot;bug_reproduction_path&quot;:null}" data-react-cache-id="SidebarAvailableTasks-0"><a data-reactroot="" href="/available_tasks" class="navlink "><div class="icon-wrapper"><span class="icon icon-review-bug"></span></div><div class="text-wrapper"><div class="div">Available tasks</div><!-- react-empty: 6 --></div></a></div>
+<div data-react-class="SidebarTestCycleContainer" data-react-props="{&quot;currentController&quot;:&quot;home&quot;,&quot;testCycles&quot;:[],&quot;tester&quot;:{&quot;id&quot;:1255153,&quot;created_at&quot;:&quot;2026-06-14T00:59:41.000+05:30&quot;,&quot;updated_at&quot;:&quot;2026-06-26T11:31:30.000+05:30&quot;,&quot;screenname&quot;:&quot;Siraj khan&quot;,&quot;status&quot;:&quot;approved&quot;,&quot;greenhorn&quot;:true,&quot;approved_at&quot;:&quot;2026-06-17T12:35:42.000+05:30&quot;,&quot;active&quot;:true,&quot;profile_thumb_license&quot;:false,&quot;deleted_at&quot;:null,&quot;onetime_signin_token&quot;:null,&quot;banned_at&quot;:null,&quot;signed_up_at&quot;:&quot;2026-06-14T00:59:41.000+05:30&quot;,&quot;campaign&quot;:null,&quot;referred_by&quot;:null,&quot;customer_id&quot;:null,&quot;banned_from_bug_dispute&quot;:false,&quot;slug&quot;:&quot;siraj_khan&quot;,&quot;available&quot;:true,&quot;private_crowd&quot;:false,&quot;banned_from_user_stories&quot;:false,&quot;course_onboarding_reproduction_passed&quot;:true,&quot;course_onboarding_workshop_passed&quot;:true,&quot;course_onboarding_user_story_passed&quot;:true,&quot;mobile_cloud&quot;:false,&quot;worker_id&quot;:6838623,&quot;course_confirmations_passed&quot;:true,&quot;course_onboarding_purchase_functionalities_passed&quot;:true,&quot;course_project_testing_passed&quot;:true,&quot;course_hardware_testing_passed&quot;:true,&quot;course_streaming_testing_passed&quot;:true,&quot;display_welcome_banner&quot;:false,&quot;course_cybersecurity_passed&quot;:true,&quot;course_real_payments_testing_passed&quot;:false,&quot;tag_list&quot;:[&quot;Onboarded for Cybersecurity&quot;,&quot;Onboarded for Streaming Testing&quot;]},&quot;currentTcId&quot;:null,&quot;pastTestCyclesCount&quot;:1,&quot;currentTestCycleIsPast&quot;:false,&quot;isCopperTester&quot;:true,&quot;totalSlotsCount&quot;:2}" data-react-cache-id="SidebarTestCycleContainer-0"><div data-reactroot="" class="react-sidebar" id="sidebar_tests_list"><div class="sidebar-divider"></div><div><div class="sidebar-label"><!-- react-text: 5 -->0<!-- /react-text --><!-- react-text: 6 --> / <!-- /react-text --><!-- react-text: 7 -->2<!-- /react-text --><!-- react-text: 8 --> <!-- /react-text --><!-- react-text: 9 -->Seats used<!-- /react-text --></div><div class="seatslot">Seat available</div><div class="seatslot">Seat available</div></div><div class="sidebar-divider"></div><details><summary class="navlink pr-0"><span class="icon icon-test-ended mr-0"></span><!-- react-text: 16 --> <!-- /react-text --><!-- react-text: 17 -->Past Test Cycles<!-- /react-text --></summary><div class="display-flex flex-column"></div></details></div></div>
+</div>
+<div class="banner-install-testnow">
+Install testNow
+<a class="icon icon-apple ml-auto" href="https://apps.apple.com/app/apple-store/id1386826134?pt=2014701&amp;ct=left%20navigation%20bar&amp;mt=8"></a>
+<a class="icon icon-android ml-xs" href="https://play.google.com/store/apps/details?id=io.test.android&amp;referrer=utm_source%3Dgoogle%26utm_medium%3Dbanner%26utm_campaign%3Dleft%2520navigation%2520bar%26anid%3Dadmob"></a>
+</div>
+
+
+</nav>
+<main class="main-content">
+<div class="" id="flashes">
+
+</div>
+
+<h1>Dashboard</h1>
+
+<div class="banner-card">
+<div class="card-chart"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+<canvas class="piechart-example chartjs-render-monitor" data-chart="{&quot;datasets&quot;:[{&quot;data&quot;:[13,1],&quot;backgroundColor&quot;:[&quot;#8CBD24&quot;,&quot;#E6E6E6&quot;],&quot;borderWidth&quot;:0}]}" width="140" height="140" style="display: block;"></canvas>
+<div class="chart-value">13/14</div>
+<div class="chart-label">modules completed</div>
+</div>
+
+<div class="card-content">
+<h5 class="card-title">Optional onboarding modules available</h5>
+<p>Discover our optional onboarding modules tailored to enhance your skills and prepare you for a diverse range of tasks and opportunities. Embrace the opportunity ahead and get ready to make your mark—your journey carries on!</p>
+<div class="card-actions">
+<a class="btn btn-primary" href="/academy">Go to learning portal</a>
+</div>
+</div>
+</div>
+
+<div class="">
+<div class="main-dashboard-content">
+<div class="col-12"><section class="mt-2">
+<div class="section-body">
+<div data-react-class="TesterInvitationsList" data-react-props="{&quot;tester&quot;:1255153,&quot;tester_status&quot;:&quot;approved&quot;,&quot;test_cycle_invitation_path&quot;:&quot;/tester_invitations&quot;,&quot;participation_bonus&quot;:null,&quot;campaign_tester&quot;:null,&quot;can_access_opportunity&quot;:true,&quot;tester_epam&quot;:false}" data-react-cache-id="TesterInvitationsList-0"><div data-reactroot=""><details class="section-collapsable" data-controller="collapsible" data-collapsible-section-id-value="available_test_cycles" open=""><summary class="section-header"><h3 class="section-title">Available Test Cycles</h3><div class="section-actions"><details class="popover-wrapper dropright"><summary><div class="linked-icon"><div class="icon icon-info"></div></div></summary><div class="popover-menu info"><div class="popover-title">Available Test Cycles</div><div class="popover-content">Available Test Cycles - Here you can see all currently open test cycles you are eligible for. Each card provides details such as: <ul> <li> <b>Customer name &amp; product title</b></li> <li> <b>Test type </b> (e.g., Test Cases, Translations, Focused)</li> <li> <b> Time left before cycle ends or starts </b></li> <li> <b> Priority level </b> (normal / high-priority)</li> <li> <b> Payment range </b></li> </ul> <br> You can join by clicking <b>Learn more</b> and following the instructions.</div></div></details></div></summary><div class="d-flex"><div class="empty-state-message horizontal m-auto">No test invitations at the moment.<br>Please check back later.</div></div></details><details class="section-collapsable" data-controller="collapsible" data-collapsible-section-id-value="available_opportunities" open=""><summary class="section-header"><h3 class="section-title">Available Opportunities</h3><div class="section-actions"><details class="popover-wrapper dropright"><summary><div class="linked-icon"><div class="icon icon-info"></div></div></summary><div class="popover-menu info"><div class="popover-title">Available Opportunities</div><div class="popover-content">This section contains surveys that collect information for customer requests, gather feedback, or assess your suitability for specific test cycles. Clicking "Apply Now" opens a survey that you need to complete to express interest or qualify for related tasks.</div></div></details></div></summary><div class="grid-testercards mb-3"><div class="card tester-card opportunity running"><a class="card-header" href="https://testio.typeform.com/to/k6buQqFX#tester_id=1255153&amp;screenname=Siraj khan" target="_blank"><img class="card-image" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/opportunity/logo/495/HX.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113709Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=998764855e46cd9b341d904aa84e95e204781be37195af5adf8605044fe27da8"></a><div class="card-info"><div class="card-label">Opportunity</div><a class="card-title" href="https://testio.typeform.com/to/k6buQqFX#tester_id=1255153&amp;screenname=Siraj khan" target="_blank"><h5>Human Experience Testing Course</h5></a><progress value="33403029" max="47433599" class="progress test-progress"><!-- react-text: 42 -->70<!-- /react-text --><!-- react-text: 43 -->%<!-- /react-text --></progress></div><div class="card-content"><p>ends in 5 months</p><ul class="bullet-list"><li>English Speaker</li><li>Interested in HX Testing</li></ul></div><div class="card-actions"><a href="https://testio.typeform.com/to/k6buQqFX#tester_id=1255153&amp;screenname=Siraj khan" class="btn btn-primary btn-block" target="_blank">Apply now</a><a href="#" class="btn btn-primary btn-square"><span class="icon icon-cross"></span></a></div></div><div class="card tester-card opportunity running"><a class="card-header" href="https://testio.typeform.com/to/nIWVRhnh#tester_id=1255153&amp;screenname=Siraj khan&amp;country=IN" target="_blank"><img class="card-image" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/opportunity/logo/551/Image__24_.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113709Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=a88bdd19a879138df58e4e69ec6e147f5be53dea14d5fc98a94bd59950111d15"></a><div class="card-info"><div class="card-label">Opportunity</div><a class="card-title" href="https://testio.typeform.com/to/nIWVRhnh#tester_id=1255153&amp;screenname=Siraj khan&amp;country=IN" target="_blank"><h5>Education quiz: In or Out of Scope? That is the question!</h5></a><progress value="21393429" max="35423999" class="progress test-progress"><!-- react-text: 61 -->60<!-- /react-text --><!-- react-text: 62 -->%<!-- /react-text --></progress></div><div class="card-content"><p>ends in 5 months</p><ul class="bullet-list"><li>Interested to improve bug approval rate</li><li>Want to learn more</li><li>Love quizzes</li></ul></div><div class="card-actions"><a href="https://testio.typeform.com/to/nIWVRhnh#tester_id=1255153&amp;screenname=Siraj khan&amp;country=IN" class="btn btn-primary btn-block" target="_blank">Apply now</a><a href="#" class="btn btn-primary btn-square"><span class="icon icon-cross"></span></a></div></div><div class="card tester-card opportunity running"><a class="card-header" href="https://testio.typeform.com/to/orTyGWgZ#tester_id=1255153&amp;screenname=Siraj khan&amp;country=IN" target="_blank"><img class="card-image" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/opportunity/logo/566/Image__34_.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113709Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=3881c9a15b8a2403954cb1cf9425a340f88224b4e321dc517c01430d74e0815b"></a><div class="card-info"><div class="card-label">Opportunity</div><a class="card-title" href="https://testio.typeform.com/to/orTyGWgZ#tester_id=1255153&amp;screenname=Siraj khan&amp;country=IN" target="_blank"><h5>Education quiz: Bug or Not?</h5></a><progress value="16468629" max="30499199" class="progress test-progress"><!-- react-text: 81 -->54<!-- /react-text --><!-- react-text: 82 -->%<!-- /react-text --></progress></div><div class="card-content"><p>ends in 5 months</p><ul class="bullet-list"><li>Interested to improve bug approval rate</li><li>Want to learn more</li><li>Love quizzes</li></ul></div><div class="card-actions"><a href="https://testio.typeform.com/to/orTyGWgZ#tester_id=1255153&amp;screenname=Siraj khan&amp;country=IN" class="btn btn-primary btn-block" target="_blank">Apply now</a><a href="#" class="btn btn-primary btn-square"><span class="icon icon-cross"></span></a></div></div><div class="card tester-card opportunity running"><a class="card-header" href="https://testio.typeform.com/to/aE8L39U6#tester_id=1255153&amp;screenname=Siraj khan&amp;country=IN" target="_blank"><img class="card-image" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/opportunity/logo/573/Image__33_.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113709Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=0e5ccc511cfc9d9612073e3120411f4a5d06c30e76de4f6bea7ce8d5d3b491c9"></a><div class="card-info"><div class="card-label">Opportunity</div><a class="card-title" href="https://testio.typeform.com/to/aE8L39U6#tester_id=1255153&amp;screenname=Siraj khan&amp;country=IN" target="_blank"><h5>Education quiz: Bug Severity</h5></a><progress value="14654229" max="28684799" class="progress test-progress"><!-- react-text: 101 -->51<!-- /react-text --><!-- react-text: 102 -->%<!-- /react-text --></progress></div><div class="card-content"><p>ends in 5 months</p><ul class="bullet-list"><li>Interested to improve bug approval rate</li><li>Want to learn more</li><li>Love quizzes</li></ul></div><div class="card-actions"><a href="https://testio.typeform.com/to/aE8L39U6#tester_id=1255153&amp;screenname=Siraj khan&amp;country=IN" class="btn btn-primary btn-block" target="_blank">Apply now</a><a href="#" class="btn btn-primary btn-square"><span class="icon icon-cross"></span></a></div></div><div class="card tester-card opportunity running"><a class="card-header" href="https://testio.typeform.com/to/A066urjI#tester_id=1255153" target="_blank"><img class="card-image" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/opportunity/logo/597/Screenshot_27.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113709Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=59a233eca7c015dd8f0826db13bf886944a79ea2a7abde4bc0df6b47ee5725f4"></a><div class="card-info"><div class="card-label">Opportunity</div><a class="card-title" href="https://testio.typeform.com/to/A066urjI#tester_id=1255153" target="_blank"><h5>Actions and Movements in Testing Flashcards</h5></a><progress value="9898629" max="26614799" class="progress test-progress"><!-- react-text: 121 -->37<!-- /react-text --><!-- react-text: 122 -->%<!-- /react-text --></progress></div><div class="card-content"><p>ends in 6 months</p><ul class="bullet-list"><li>Interested in improving your Bug Reporting skills</li><li>Want to learn faster</li></ul></div><div class="card-actions"><a href="https://testio.typeform.com/to/A066urjI#tester_id=1255153" class="btn btn-primary btn-block" target="_blank">Apply now</a><a href="#" class="btn btn-primary btn-square"><span class="icon icon-cross"></span></a></div></div><div class="card tester-card opportunity running"><a class="card-header" href="https://testio.typeform.com/to/XAAb3yTe#tester_id=1255153" target="_blank"><img class="card-image" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/opportunity/logo/603/Picture2.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113709Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=efb93bf274be7d3ea688e503a32a50f629e2f93bdb504b011fbce4d87940e750"></a><div class="card-info"><div class="card-label">Opportunity</div><a class="card-title" href="https://testio.typeform.com/to/XAAb3yTe#tester_id=1255153" target="_blank"><h5>Dispute Course</h5></a><progress value="7997829" max="53657999" class="progress test-progress"><!-- react-text: 140 -->15<!-- /react-text --><!-- react-text: 141 -->%<!-- /react-text --></progress></div><div class="card-content"><p>ends in over 1 year</p><ul class="bullet-list"><li>Earning more</li><li>Improving Bug Reporting skills</li></ul></div><div class="card-actions"><a href="https://testio.typeform.com/to/XAAb3yTe#tester_id=1255153" class="btn btn-primary btn-block" target="_blank">Apply now</a><a href="#" class="btn btn-primary btn-square"><span class="icon icon-cross"></span></a></div></div><div class="card tester-card opportunity running"><a class="card-header" href="https://testio.typeform.com/to/jqju8MVv#tester_id=1255153" target="_blank"><img class="card-image" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/opportunity/logo/604/1776858434317.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113709Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=179974c3dbcc7fc6606a24b772564d368be1fb9674e0fbec14549e9800b5013d"></a><div class="card-info"><div class="card-label">Opportunity</div><a class="card-title" href="https://testio.typeform.com/to/jqju8MVv#tester_id=1255153" target="_blank"><h5>Standard Feature Descriptions Flashcards</h5></a><progress value="7911429" max="53571599" class="progress test-progress"><!-- react-text: 159 -->15<!-- /react-text --><!-- react-text: 160 -->%<!-- /react-text --></progress></div><div class="card-content"><p>ends in over 1 year</p><ul class="bullet-list"><li>Interested in improving your Bug Reporting skills</li><li>Want to learn faster</li></ul></div><div class="card-actions"><a href="https://testio.typeform.com/to/jqju8MVv#tester_id=1255153" class="btn btn-primary btn-block" target="_blank">Apply now</a><a href="#" class="btn btn-primary btn-square"><span class="icon icon-cross"></span></a></div></div><div class="card tester-card opportunity running"><a class="card-header" href="https://testio.typeform.com/to/jOlGMb1P#tester_id=1255153" target="_blank"><img class="card-image" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/opportunity/logo/609/Picture2.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113709Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=df940aa4f7c7cf6f723e671aa61cd467dab8abbb2acb21a0e2e76b0ad21e2359"></a><div class="card-info"><div class="card-label">Opportunity</div><a class="card-title" href="https://testio.typeform.com/to/jOlGMb1P#tester_id=1255153" target="_blank"><h5>Streaming Testing - The Most Common Terms in Testing Flashcards</h5></a><progress value="7220229" max="52880399" class="progress test-progress"><!-- react-text: 178 -->14<!-- /react-text --><!-- react-text: 179 -->%<!-- /react-text --></progress></div><div class="card-content"><p>ends in over 1 year</p><ul class="bullet-list"><li>Interested in learning about Streaming Testing</li><li>Want to learn faster</li></ul></div><div class="card-actions"><a href="https://testio.typeform.com/to/jOlGMb1P#tester_id=1255153" class="btn btn-primary btn-block" target="_blank">Apply now</a><a href="#" class="btn btn-primary btn-square"><span class="icon icon-cross"></span></a></div></div><div class="card tester-card opportunity running"><a class="card-header" href="https://testio.typeform.com/to/QGuaIrHD#tester_id=1255153" target="_blank"><img class="card-image" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/opportunity/logo/612/1778062605936.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113709Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=5c3da3a39b10a7621d4056d79d24d7ec93d8ebc4b3e86f70248499ad4e986312"></a><div class="card-info"><div class="card-label">Opportunity</div><a class="card-title" href="https://testio.typeform.com/to/QGuaIrHD#tester_id=1255153" target="_blank"><h5>Real Payments Testing Flashcards</h5></a><progress value="6615429" max="52275599" class="progress test-progress"><!-- react-text: 197 -->13<!-- /react-text --><!-- react-text: 198 -->%<!-- /react-text --></progress></div><div class="card-content"><p>ends in over 1 year</p><ul class="bullet-list"><li>Interested in learning about Real Payments Testing</li><li>Want to learn faster</li></ul></div><div class="card-actions"><a href="https://testio.typeform.com/to/QGuaIrHD#tester_id=1255153" class="btn btn-primary btn-block" target="_blank">Apply now</a><a href="#" class="btn btn-primary btn-square"><span class="icon icon-cross"></span></a></div></div><div class="card tester-card opportunity running"><a class="card-header" href="https://testio.typeform.com/to/f84NNwr6#tester_id=1255153" target="_blank"><img class="card-image" src="https://s3.eu-central-1.amazonaws.com/uploads.test.io/uploads/opportunity/logo/616/1778747646631.png?X-Amz-Expires=7200&amp;X-Amz-Date=20260722T113709Z&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAT7SN3QKZRHMKRBWP%2F20260722%2Feu-central-1%2Fs3%2Faws4_request&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=0a2577c8320edfd8251a708a985b2eca336bc2bb93f431957c73e88ea0d8f8a1"></a><div class="card-info"><div class="card-label">Opportunity</div><a class="card-title" href="https://testio.typeform.com/to/f84NNwr6#tester_id=1255153" target="_blank"><h5>AIIAT (LLM) Testing Flashcards</h5></a><progress value="6010629" max="20134799" class="progress test-progress"><!-- react-text: 216 -->30<!-- /react-text --><!-- react-text: 217 -->%<!-- /react-text --></progress></div><div class="card-content"><p>ends in 5 months</p><ul class="bullet-list"><li>Interested in learning about most common bugs in AIIAT Testing</li><li>Want to learn faster</li></ul></div><div class="card-actions"><a href="https://testio.typeform.com/to/f84NNwr6#tester_id=1255153" class="btn btn-primary btn-block" target="_blank">Apply now</a><a href="#" class="btn btn-primary btn-square"><span class="icon icon-cross"></span></a></div></div></div></details></div></div>
+</div>
+</section>
+</div>
+<div class="col-12">
+<div class="hidden" data-url="https://tester.test.io/account/devices" id="update-device-notification">
+<div class="media">
+<div class="media-left mr-1">
+<span class="icon-devices-xl icon-xl"></span>
+</div>
+<div class="media-body">
+<strong class="blue">Update your devices</strong>
+<p class="label-sm">Please check, if your device data is still up to date</p>
+</div>
+</div>
+</div>
+
+</div>
+<div class="grid-tester-taskcards">
+<details class="card card-collapsable mt-2" data-collapsible-section-id-value="bug_reproductions" data-controller="collapsible" open="open">
+<summary class="card-header">
+<h3 class="card-title">REPRODUCTIONS</h3>
+<div class="card-header-actions"></div>
+<details class="popover-wrapper dropright">
+<summary>
+<div class="btn btn-sm btn-square">
+<div class="icon icon-info"></div>
+</div>
+</summary>
+<div class="popover-menu info">
+<div class="popover-title">Reproductions</div>
+<div class="popover-content">Confirm whether a reported bug can be reproduced on your device by following the provided steps. Your input helps validate the bug's consistency and importance.</div>
+</div>
+</details>
+</summary>
+<div class="card-body">
+<div class="grid-learning-modules">
+<section id="bug-reproductions-list">
+<div data-react-class="BugReproductionsList" data-react-props="{&quot;bugs&quot;:[],&quot;csrf_token&quot;:&quot;aEjqT_lhU5qJvsVp2aYGDLMKmZbkqv4vgkpvqq9aGIV35jYC7QzqWrk3e5G3uvO7uD2cQoimodI5q3FUp9xNNQ&quot;}" data-react-cache-id="BugReproductionsList-0"><div data-reactroot="" class="empty-state-message look-left">No reproductions at this time. Please check again later.</div></div>
+</section>
+
+</div>
+</div>
+</details>
+<details class="card card-collapsable mt-2" data-collapsible-section-id-value="bug_confirmations" data-controller="collapsible" open="open">
+<summary class="card-header">
+<h3 class="card-title">BUG CONFIRMATIONS</h3>
+<div class="card-header-actions">
+<details class="popover-wrapper dropright">
+<summary>
+<div class="btn btn-sm btn-square">
+<div class="icon icon-info"></div>
+</div>
+</summary>
+<div class="popover-menu info">
+<div class="popover-title">Bug Fix Confirmations / Bug Report Confirmations</div>
+<div class="popover-content">Bug Fix Confirmations: Verify that a reported issue has been resolved after a fix. Bug Report Confirmations: Validate the accuracy of another tester’s bug report by confirming it on your device.</div>
+</div>
+</details>
+</div>
+</summary>
+<div class="card-body">
+<div class="course-badge locked mb-sm">
+Locked section, unlock by completing these modules and criteria
+</div>
+<div class="grid-learning-modules">
+<div class="learning-module">
+<a class="learning-module-button" href="https://tester.test.io/profile"><img alt="Tester level medal" class="testerlevel-medal" src="https://cdn.test.io/assets/testerlevel-medals/medal_testerlevel_3_md-a76728c28d373fd61af86d85ad8c4085e7e32286a261f25789606b6933c012dc.png">
+</a><div class="learning-module-content">
+<div class="learning-module-heading">
+<a class="learning-module-title" href="https://tester.test.io/profile">Level Requirement</a>
+</div>
+<div class="learning-module-description">Achieve the Silver level or higher</div>
+</div>
+</div>
+</div>
+</div>
+</details>
+<details class="card card-collapsable mt-2" data-collapsible-section-id-value="single_tasks" data-controller="collapsible" open="open">
+<summary class="card-header">
+<h3 class="card-title">SINGLE TASKS</h3>
+<div class="card-header-actions">
+<details class="popover-wrapper dropright">
+<summary>
+<div class="btn btn-sm btn-square">
+<div class="icon icon-info"></div>
+</div>
+</summary>
+<div class="popover-menu info">
+<div class="popover-title">Single Tasks</div>
+<div class="popover-content">Quick, independent assignments such as short surveys, validations, or checks. These tasks allow flexibility and contribute to specific project needs.</div>
+</div>
+</details>
+</div>
+</summary>
+<div class="card-body"><div class="empty-state-message search">
+No single tasks at this time. Please check again later.
+</div></div>
+</details>
+
+</div>
+
+</div>
+</div>
+
+<div class="availability-curtain text-center hidden">
+<div class="p-2">
+<div class="icon icon-xl icon-bug-sleeping-xl"></div>
+<p class="availability-label">Your status is currently set to "not available". If you want to receive invites, please change your availability in the top navigation</p>
+</div>
+</div>
+<div id="branch-io-test_invitations" class="branch-io-banner" data-tags="[&quot;test_invitations&quot;]" data-data="{&quot;screen_name&quot;:&quot;test_invitations&quot;,&quot;tester_id&quot;:1255153,&quot;$journeys_description&quot;:&quot;Explore available tasks easier and faster with our mobile app&quot;}" data-branch-io-key="key_live_cfWtSEy4vc7Iy21SA2yI2lfdsufNPCrY"></div>
+
+</main>
+<div aria-hidden="true" class="modal fade" data-backdrop="static" data-keyboard="false" id="remote-modal" role="dialog">
+<div class="modal-dialog" role="document">
+<div class="modal-content"></div>
+</div>
+</div>
+
+<script nonce="">
+//<![CDATA[
+window.locale = 'en';
+window.I18n = {} // You must define this object in top namespace, which should be `window`
+window.I18n.locale = 'en';
+
+//]]>
+</script><script nonce="">
+//<![CDATA[
+window.timezoneDefault = "Asia/Kolkata"
+
+//]]>
+</script><script src="https://cdn.test.io/assets/halo-1b80df65d81cdfa2802373ba6a818dde47fc3f9e906f2af18ea4070d0f68a61e.js" crossorigin="anonymous" data-turbo-suppress-warning="true" nonce=""></script>
+
+<script nonce="">
+//<![CDATA[
+const allSwitches = ["access_claims_env", "ai_onboarding_review", "external_test_cases_tests", "gaming_devices", "open_ai_prompts", "rich_text_editor", "teamleader_invitations_via_cirro", "test_case_steps_expected_result", "testing_time_adjustment"]
+const alreadyLiveSwitches = ["go_live_switch_switch", "edit_connection_wizard_feature", "redis_user_last_seen_feature", "internal_tester_segment", "invitations_service_refactoring", "bug_fix_confirmation_invitations_refactoring", "inactive_tester_search_caching_feature", "user_story_execution_attachments", "device_manager_caching", "remove_custom_tests", "onboarding_reproduction_module", "team_leaders_execute_user_stories", "invitation_bug_fix_confirmation_device_v2", "pricing_features_page", "pricing_plans_2020", "new_product_overview", "invitation_wave_test_cycle_v2", "invitation_test_cycle_v2", "likes_history", "test_case_steps_editing", "user_story_execution_rejection", "invitation_inactive_tester_v2", "all_customers_like_bugs", "reproduction_only_testers", "user_story_execution_rejection_for_testers", "copied_bug_reduced_payout", "testers_discord_link", "new_test_cycle_list", "session_surveys_and_reports", "test_case_manager_connection", "tester_ranking_activity_log", "tester_ranking_new_page", "split_bug_list", "tester_invitations_transparency", "user_story_tester_payouts", "test_case_bug_reproductions", "test_sessions", "opportunities", "actual_result_expected_result_switch", "remote_device_testing", "tester_proxy_username_and_password", "dashboard_tester_activity", "cirro_sso_integration", "epam_data_lake_integration", "modular_exploratory_testing_course", "modern_team_leader_interface", "extra_mile_test_cycle_switch", "badges", "translated_bugs", "activity_sessions", "user_story_execution_rudimentary_linked_bug", "bug_report_confirmations", "cirro_billing_migration", "team_leader_time_tracking", "rich_text_editor", "multilingual_onboardings", "test_case_steps_expected_result", "access_claims_env", "test_template_override", "ai_onboarding_review", "teamleader_invitations_via_cirro"]
+
+window.go_live_switched_on = function (_switch) {
+  if (!allSwitches.includes(_switch)) {
+    throw "no definition found for this switch";
+  }
+
+  return alreadyLiveSwitches.includes(_switch)
+}
+
+
+//]]>
+</script>
+<script nonce="">
+//<![CDATA[
+window.currentAccount = {
+  id: 1255153,
+  type: 'Tester',
+  name: "Siraj khan",
+  loyalty_program_id: ""
+}
+
+
+
+//]]>
+</script><script nonce="">
+//<![CDATA[
+
+$(document).ready(function(){
+      !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware"];analytics.factory=function(e){return function(){var t=Array.prototype.slice.call(arguments);t.unshift(e);analytics.push(t);return analytics}};for(var e=0;e<analytics.methods.length;e++){var key=analytics.methods[e];analytics[key]=analytics.factory(key)}analytics.load=function(key,e){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.src="https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n);analytics._loadOptions=e};analytics._writeKey='cGwNMNuupmBlmnfRxkshhwPmHVFAsxHo';analytics.SNIPPET_VERSION="4.15.2";
+    analytics.load('cGwNMNuupmBlmnfRxkshhwPmHVFAsxHo');
+    analytics.page();
+    }}();
+analytics.identify(1255153, {"user_id":1255153,"firstname":"Siraj","lastname":"Khan","role":"Tester","screenname":"Siraj khan","email":"ffjbfbbju@gmail.com","locale":"en","emails bounced":"0","last mailing error":"","customer_id":null,"customer_subdomain":null,"campaign":null,"status":"approved","active":true,"level":"copper","quality_score":null,"reliability_score":null,"created_at":"2026-06-14T00:59:41.000+05:30","approved_at":"2026-06-17T12:35:42.000+05:30"}, {"integrations":{"Intercom":{"user_hash":"b2af4d9ea89bd141bd6a89e2f18583b3be9b6e75ed2916e9404e4e12ac9ad3ac"}}});
+  $(document).trigger('segment_loaded');
+});
+
+
+
+//]]>
+</script><script nonce="">
+//<![CDATA[
+window.pusher = new Pusher('64b27a7cc3ba21b526b5', {
+  encrypted: true,
+  authEndpoint: '/pusher/auth',
+  cluster: 'mt1',
+  auth: {
+    headers: {
+      'X-CSRF-Token': '8Q0YFVlo4yZkJkJSskvJ1vQOAhWiEt4GBoo0hMBb4XDuo8RYTQVa5lSv_KrcVzxh_zkHwc4egfu9ayp6yN20wA'
+    }
+  }
+});
+
+
+//]]>
+</script>
+
+
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" nonce="" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;5dbf565644af451b8ee0ebe14732f3b2&quot;,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}" crossorigin="anonymous"></script>
+
+
+<div class="notification-container"><div class="notification" style="margin-bottom: 10px;">
+  <div class="notification-badge"><div class="icon icon-devices-lg"></div></div>
+  <div class="notification-title">Update your devices</div>
+  <div class="notification-content">
+  <div class="notification-message">Please check, if your device data is still up to date</div>
+  <a class="btn btn-sm btn-inverted" href="https://tester.test.io/account/devices">Update devices</a>
+</div>
+  <button class="btn btn-close">
+    <span class="icon icon-cross"></span>
+  </button>
+</div></div></body></html>

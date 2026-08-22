@@ -160,8 +160,76 @@ async def accept_test(page: Page, test_element=None, dry_run: bool = False, test
                 pass
 
             if not is_checked:
-                await checkbox.click()
-                logger.info("✅ Checkbox clicked (agree to instructions)")
+                # The checkbox is often obscured by its own <label> overlay and
+                # a sticky action bar at the bottom of the page.  Use multiple
+                # strategies to guarantee the click lands.
+                clicked = False
+
+                # Strategy 1: Scroll the join section to the centre of the
+                # viewport and temporarily hide the sticky action bar so
+                # nothing intercepts the click.
+                try:
+                    await page.evaluate("""() => {
+                        // Hide sticky action bar that covers the checkbox
+                        const bar = document.getElementById('test-action-bar')
+                            || document.getElementById('submit-bug-action');
+                        if (bar) bar.style.display = 'none';
+                        // Scroll checkbox into centre of viewport
+                        const cb = document.getElementById('terms-checkbox')
+                            || document.querySelector('input[type="checkbox"]');
+                        if (cb) cb.scrollIntoView({block: 'center'});
+                    }""")
+                    await page.wait_for_timeout(200)
+                except Exception:
+                    pass
+
+                # Strategy 2: JavaScript direct click – completely immune to
+                # pointer-event interception by labels / overlays.
+                try:
+                    await page.evaluate("""() => {
+                        const cb = document.getElementById('terms-checkbox')
+                            || document.querySelector('input[type="checkbox"]');
+                        if (cb) { cb.click(); return true; }
+                        return false;
+                    }""")
+                    clicked = True
+                    logger.info("✅ Checkbox clicked via JS .click()")
+                except Exception as js_err:
+                    logger.warning(f"JS checkbox click failed: {js_err}")
+
+                # Strategy 3: Playwright force-click as fallback
+                if not clicked:
+                    try:
+                        await checkbox.click(force=True, timeout=5000)
+                        clicked = True
+                        logger.info("✅ Checkbox clicked via force=True")
+                    except Exception as force_err:
+                        logger.warning(f"Force checkbox click failed: {force_err}")
+
+                # Strategy 4: Click the label instead (the label's for=
+                # attribute will toggle the checkbox)
+                if not clicked:
+                    try:
+                        label = await page.query_selector('label[for="terms-checkbox"]')
+                        if label:
+                            await label.click(force=True, timeout=5000)
+                            clicked = True
+                            logger.info("✅ Checkbox toggled via label click")
+                    except Exception as label_err:
+                        logger.warning(f"Label click failed: {label_err}")
+
+                if not clicked:
+                    logger.error("❌ All checkbox click strategies failed")
+
+                # Restore the action bar visibility
+                try:
+                    await page.evaluate("""() => {
+                        const bar = document.getElementById('test-action-bar')
+                            || document.getElementById('submit-bug-action');
+                        if (bar) bar.style.display = '';
+                    }""")
+                except Exception:
+                    pass
             else:
                 logger.info("✅ Checkbox was already checked")
 
@@ -217,7 +285,12 @@ async def accept_test(page: Page, test_element=None, dry_run: bool = False, test
             return result
 
         # ⚡ CLICK — INSTANT, NO DELAY
-        await accept_button.click()
+        # Use force=True to bypass any overlapping elements (sticky bars, labels)
+        try:
+            await accept_button.click(force=True, timeout=10000)
+        except Exception:
+            # Fallback: JS click
+            await page.evaluate("btn => btn.click()", accept_button)
         logger.info("🚀 Accept button clicked!")
         await capture(page, "accept_clicked", result["test_id"])
 
